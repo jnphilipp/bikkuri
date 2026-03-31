@@ -21,7 +21,7 @@
 
 import unittest
 
-from bikkuri import NGramSurprisal
+from bikkuri import NGramSurprisal, UniGramSurprisal
 
 
 class NGramSurprisalTests(unittest.TestCase):
@@ -389,6 +389,51 @@ class NGramSurprisalTests(unittest.TestCase):
     def test_unigram_surprisal(self) -> None:
         """Test unigram surprisal."""
         unigram_surprisal = NGramSurprisal(1)
+        unigram_surprisal.fit(self.texts)
+        self.assertEqual(
+            [
+                [
+                    ("lorem", 8.383704292474052),
+                    ("ipsum", 6.798741791752896),
+                    ("dolor", 6.798741791752896),
+                    ("sit", 6.798741791752896),
+                    ("amet", 6.383704292474052),
+                    ("consectetur", 6.383704292474052),
+                    ("adipiscing", 6.798741791752896),
+                ],
+                [
+                    ("feugiat", 8.383704292474052),
+                    ("massa", 6.798741791752896),
+                    ("maximus", 6.383704292474052),
+                    ("ultrices", 8.383704292474052),
+                    ("ipsum", 6.798741791752896),
+                    ("nec", 8.383704292474052),
+                ],
+            ],
+            unigram_surprisal(
+                [
+                    [
+                        "lorem",
+                        "ipsum",
+                        "dolor",
+                        "sit",
+                        "amet",
+                        "consectetur",
+                        "adipiscing",
+                    ],
+                    [
+                        "feugiat",
+                        "massa",
+                        "maximus",
+                        "ultrices",
+                        "ipsum",
+                        "nec",
+                    ],
+                ]
+            ),
+        )
+
+        unigram_surprisal = UniGramSurprisal()
         unigram_surprisal.fit(self.texts)
         self.assertEqual(
             [

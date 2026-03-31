@@ -132,3 +132,11 @@ class NGramSurprisal:
                 ]
                 for text in texts
             ]
+
+
+class UniGramSurprisal(NGramSurprisal):
+    """Uni-gram surprisal."""
+
+    def __init__(self) -> None:
+        """Init."""
+        super().__init__(1)

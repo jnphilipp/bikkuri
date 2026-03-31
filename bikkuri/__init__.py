@@ -18,9 +18,9 @@
 # along with bikkuri. If not, see <http://www.gnu.org/licenses/>
 """Bikkuri, calculate the surprisal of words in texts."""
 
-from .ngram import NGramSurprisal
+from .ngram import NGramSurprisal, UniGramSurprisal
 
-__all__ = ["NGramSurprisal"]
+__all__ = ["NGramSurprisal", "UniGramSurprisal"]
 
 __app_name__ = "bikkuri"
 __author__ = "J. Nathanael Philipp"
