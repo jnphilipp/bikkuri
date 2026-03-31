@@ -140,3 +140,11 @@ class UniGramSurprisal(NGramSurprisal):
     def __init__(self) -> None:
         """Init."""
         super().__init__(1)
+
+
+class BiGramSurprisal(NGramSurprisal):
+    """Bi-gram surprisal."""
+
+    def __init__(self) -> None:
+        """Init."""
+        super().__init__(2)
