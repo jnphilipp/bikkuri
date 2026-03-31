@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+
+[project]
+name = "bikkuri"
+version = "0.1.0"
+authors = [
+    {name = "J. Nathanael Philipp", email = "jnathanael@philipp.land"}
+]
+description="Calculate the surprisal of words in texts."
+readme = "README.md"
+license = {text = "GPLv3+"}
+requires-python = ">=3.11"
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Intended Audience :: Education",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+]
+keywords = ["surprisal"]
+
+
+[project.urls]
+"Homepage" = "https://github.com/jnphilipp/bikkuri"
+"Bug Tracker" = "http://github.com/jnphilipp/bikkuri/issues"
+
+
+[tool.setuptools.package-data]
+"*" = ["py.typed"]
