@@ -16,7 +16,6 @@ repos:
     rev: 7.3.0
     hooks:
       - id: flake8
-        exclude: (tests)
         additional_dependencies: [pep8-naming, flake8-docstrings]
         args: [--max-line-length=88]
   - repo: https://github.com/pre-commit/mirrors-mypy

@@ -21,7 +21,6 @@
 
 import unittest
 
-from collections import Counter
 from bikkuri import NGramSurprisal
 
 
@@ -29,7 +28,7 @@ class NGramSurprisalTests(unittest.TestCase):
     """TopicContextModel tests."""
 
     def setUp(self) -> None:
-        """"""
+        """Set up."""
         self.texts = [
             [
                 "lorem",
