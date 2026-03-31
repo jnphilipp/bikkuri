@@ -7,3 +7,19 @@ Calculate the surprisal of words in texts.
 ## Requirements
 
 * Python >= 3.11
+
+## Usage
+
+```python
+from bikkuri import UniGramSurprisal
+
+
+unigram_surprisal = UniGramSurprisal()
+unigram_surprisal.fit([
+    ["lorem", "ipsum", "dolor", "sit", "amet", ...],
+    ["convallis", "fringilla", "dignissim", "massa", ...],
+    ...
+])
+
+unigram_surprisal([["lorem", "ipsum", "dolor"]])
+```
