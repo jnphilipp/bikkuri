@@ -35,6 +35,38 @@ class NGramSurprisal:
 
     def __call__(self, texts: list[list[str]]) -> list[list[tuple[str, float]]]:
         """Calculate the surprisal for the given texts."""
+        return self.surprisal(texts)
+
+    def _get_prefix(self, text: list[str], suffix: int) -> str | None:
+        """Get the n-gram prefix of a word (suffix) in a text."""
+        if self._n == 1:
+            return None
+        return "_".join(
+            text[suffix - j] if suffix - j >= 0 else "_" for j in range(1, self._n)
+        )
+
+    def fit(self, texts: list[list[str]]) -> None:
+        """Calculate the frequencies needed to calculate the n-gram surprisal."""
+        if self.__counter is None:
+            self.__counter = Counter()
+        if self.__suffix_counter is None:
+            self.__suffix_counter = {}
+
+        for text in texts:
+            for i, word in enumerate(text):
+                self.__counter.update([word])
+                if self._n > 1:
+                    if word not in self.__suffix_counter:
+                        self.__suffix_counter[word] = Counter()
+                    self.__suffix_counter[word].update([self._get_prefix(text, i)])
+
+    @property
+    def n(self) -> int:
+        """Get the type of n-gram."""
+        return self._n
+
+    def surprisal(self, texts: list[list[str]]) -> list[list[tuple[str, float]]]:
+        """Calculate the surprisal for the given texts."""
 
         def get_prefix_count(prefix: str | None) -> int:
             assert self.__suffix_counter is not None
@@ -100,31 +132,3 @@ class NGramSurprisal:
                 ]
                 for text in texts
             ]
-
-    def _get_prefix(self, text: list[str], suffix: int) -> str | None:
-        """Get the n-gram prefix of a word (suffix) in a text."""
-        if self._n == 1:
-            return None
-        return "_".join(
-            text[suffix - j] if suffix - j >= 0 else "_" for j in range(1, self._n)
-        )
-
-    def fit(self, texts: list[list[str]]) -> None:
-        """Calculate the frequencies needed to calculate the n-gram surprisal."""
-        if self.__counter is None:
-            self.__counter = Counter()
-        if self.__suffix_counter is None:
-            self.__suffix_counter = {}
-
-        for text in texts:
-            for i, word in enumerate(text):
-                self.__counter.update([word])
-                if self._n > 1:
-                    if word not in self.__suffix_counter:
-                        self.__suffix_counter[word] = Counter()
-                    self.__suffix_counter[word].update([self._get_prefix(text, i)])
-
-    @property
-    def n(self) -> int:
-        """Get the type of n-gram."""
-        return self._n
