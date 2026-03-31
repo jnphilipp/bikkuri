@@ -3,6 +3,7 @@
 Calculate the surprisal of words in texts.
 
 ![Tests](https://github.com/jnphilipp/bikkuri/actions/workflows/tests.yml/badge.svg)
+[![pypi Version](https://img.shields.io/pypi/v/bikkuri.svg?logo=pypi&logoColor=white)](https://pypi.org/project/bikkuri/)
 
 ## Requirements
 
