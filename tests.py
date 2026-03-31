@@ -433,6 +433,53 @@ class NGramSurprisalTests(unittest.TestCase):
             ),
         )
 
+    def test_bigram_surprisal(self) -> None:
+        """Test bigram surprisal."""
+        bigram_surprisal = NGramSurprisal(2)
+        bigram_surprisal.fit(self.texts)
+        self.assertEqual(
+            [
+                [
+                    ("lorem", 3.321928094887362),
+                    ("ipsum", 0.0),
+                    ("dolor", 1.5849625007211563),
+                    ("sit", 1.5849625007211563),
+                    ("amet", 1.5849625007211563),
+                    ("consectetur", 2.0),
+                    ("adipiscing", 2.0),
+                ],
+                [
+                    ("feugiat", 3.321928094887362),
+                    ("massa", 0.0),
+                    ("maximus", 1.5849625007211563),
+                    ("ultrices", 2.0),
+                    ("ipsum", 0.0),
+                    ("nec", 1.5849625007211563),
+                ],
+            ],
+            bigram_surprisal(
+                [
+                    [
+                        "lorem",
+                        "ipsum",
+                        "dolor",
+                        "sit",
+                        "amet",
+                        "consectetur",
+                        "adipiscing",
+                    ],
+                    [
+                        "feugiat",
+                        "massa",
+                        "maximus",
+                        "ultrices",
+                        "ipsum",
+                        "nec",
+                    ],
+                ]
+            ),
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
