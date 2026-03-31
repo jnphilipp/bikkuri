@@ -1,3 +1,3 @@
-# Surprisal
+# Bikkuri
 
-Calculate the surprisal for words.
+Calculate the surprisal of words in texts.
