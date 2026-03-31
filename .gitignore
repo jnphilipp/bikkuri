@@ -1,6 +1,7 @@
 build/
 dist/
-surprisal.egg-info/
+bikkuri.egg-info/
+changelog.latest.md
 
 # Python
 __pycache__/
