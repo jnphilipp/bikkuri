@@ -1,6 +1,7 @@
+bikkuri.egg-info/
 build/
 dist/
-bikkuri.egg-info/
+target/
 changelog.latest.md
 
 # Python

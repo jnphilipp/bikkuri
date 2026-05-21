@@ -1,0 +1,10 @@
+[package]
+name = "bikkuri"
+version = "0.2.0"
+authors = ["J. Nathanael Philipp (jnphilipp) <jnathanael@philipp.land>"]
+edition = "2021"
+
+[lib]
+name = "bikkuri"
+path = "src/lib.rs"
+crate-type = ["lib"]

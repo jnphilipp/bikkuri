@@ -1,4 +1,14 @@
+.PHONY: build clean default test test-rs test-py
+
 SHELL:=/bin/bash
+
+LIB_ENTRY_FILE?=src/lib.rs
+SOURCE_FILES?=$(shell test -e src/ && find src -type f)
+
+COMPILER?=cargo
+RUSTDOC?=rustdoc
+BUILD_FLAGS?=--release
+TEST_FLAGS?=--no-default-features -- --nocapture
 
 BASH_COMPLETION_DIR?=/usr/share/bash-completion.d
 BIN_DIR?=/usr/bin
@@ -15,13 +25,35 @@ else
 endif
 
 
+default: release
+
+
 clean:
+	$(Q)cargo clean
+	$(Q)rm -rf "doc/"
+	@echo "--- Deleted Rust binaries and documentation"
 	$(Q)rm -rf ./build ./dist
 	$(Q)find . -name __pycache__ -exec rm -rf {} \;
+	@echo "--- Deleed __pycache__ and build and dist dirs"
 
 
-test:
+build: ${LIB_ENTRY_FILE} ${SOURCE_FILES}
+	$(Q)${COMPILER} build ${BUILD_FLAGS}
+
+
+test: test-rs test-py
+
+
+test-py:
 	$(Q)python3 -m unittest
+
+
+test-rs: build
+	$(Q)${COMPILER} test ${TEST_FLAGS}
+
+
+release: test
+	$(Q)echo "Finished building bikkuri.so."
 
 
 changelog.latest.md:
