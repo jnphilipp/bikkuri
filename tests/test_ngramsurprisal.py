@@ -432,6 +432,32 @@ class NGramSurprisalTests(unittest.TestCase):
                 ]
             ),
         )
+        self.assertEqual(
+            [
+                [
+                    ("lorem", 8.383704292474052),
+                    ("ipsum", 6.798741791752896),
+                    ("dolor", 6.798741791752896),
+                    ("sit", 6.798741791752896),
+                    ("amet", 6.383704292474052),
+                    ("foo", 8.388017285345136),
+                    ("bar", 8.388017285345136),
+                ]
+            ],
+            unigram_surprisal(
+                [
+                    [
+                        "lorem",
+                        "ipsum",
+                        "dolor",
+                        "sit",
+                        "amet",
+                        "foo",
+                        "bar",
+                    ]
+                ]
+            ),
+        )
 
         unigram_surprisal = UniGramSurprisal()
         unigram_surprisal.fit(self.texts)
@@ -474,6 +500,32 @@ class NGramSurprisalTests(unittest.TestCase):
                         "ipsum",
                         "nec",
                     ],
+                ]
+            ),
+        )
+        self.assertEqual(
+            [
+                [
+                    ("lorem", 8.383704292474052),
+                    ("ipsum", 6.798741791752896),
+                    ("dolor", 6.798741791752896),
+                    ("sit", 6.798741791752896),
+                    ("amet", 6.383704292474052),
+                    ("foo", 8.388017285345136),
+                    ("bar", 8.388017285345136),
+                ]
+            ],
+            unigram_surprisal(
+                [
+                    [
+                        "lorem",
+                        "ipsum",
+                        "dolor",
+                        "sit",
+                        "amet",
+                        "foo",
+                        "bar",
+                    ]
                 ]
             ),
         )
@@ -524,6 +576,32 @@ class NGramSurprisalTests(unittest.TestCase):
                 ]
             ),
         )
+        self.assertEqual(
+            [
+                [
+                    ("lorem", 3.321928094887362),
+                    ("ipsum", -0.0),
+                    ("dolor", 1.5849625007211563),
+                    ("sit", 1.5849625007211563),
+                    ("amet", 1.5849625007211563),
+                    ("foo", 2.321928094887362),
+                    ("bar", 8.388017285345136),
+                ]
+            ],
+            bigram_surprisal(
+                [
+                    [
+                        "lorem",
+                        "ipsum",
+                        "dolor",
+                        "sit",
+                        "amet",
+                        "foo",
+                        "bar",
+                    ]
+                ]
+            ),
+        )
 
         bigram_surprisal = BiGramSurprisal()
         bigram_surprisal.fit(self.texts)
@@ -569,6 +647,36 @@ class NGramSurprisalTests(unittest.TestCase):
                 ]
             ),
         )
+        self.assertEqual(
+            [
+                [
+                    ("lorem", 3.321928094887362),
+                    ("ipsum", -0.0),
+                    ("dolor", 1.5849625007211563),
+                    ("sit", 1.5849625007211563),
+                    ("amet", 1.5849625007211563),
+                    ("foo", 2.321928094887362),
+                    ("bar", 8.388017285345136),
+                ]
+            ],
+            bigram_surprisal(
+                [
+                    [
+                        "lorem",
+                        "ipsum",
+                        "dolor",
+                        "sit",
+                        "amet",
+                        "foo",
+                        "bar",
+                    ]
+                ]
+            ),
+        )
+
+
+if __name__ == "__main__":
+    unittest.main()
 
 
 if __name__ == "__main__":
