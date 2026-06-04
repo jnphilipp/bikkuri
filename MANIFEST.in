@@ -1,0 +1,6 @@
+include Cargo.lock
+include Cargo.toml
+include LICENSE
+include py.typed
+include build.rs
+recursive-include src *

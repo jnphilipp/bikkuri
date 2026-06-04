@@ -17,11 +17,13 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with bikkuri. If not, see <http://www.gnu.org/licenses/>
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Tests for bikkuri."""
 
 import unittest
 
-from bikkuri import NGramSurprisal, UniGramSurprisal, BiGramSurprisal
+from bikkuri.ngram import NGramSurprisal
 
 
 class NGramSurprisalTests(unittest.TestCase):
@@ -410,7 +412,7 @@ class NGramSurprisalTests(unittest.TestCase):
                     ("nec", 8.383704292474052),
                 ],
             ],
-            unigram_surprisal(
+            unigram_surprisal.surprisal(
                 [
                     [
                         "lorem",
@@ -444,78 +446,7 @@ class NGramSurprisalTests(unittest.TestCase):
                     ("bar", 8.388017285345136),
                 ]
             ],
-            unigram_surprisal(
-                [
-                    [
-                        "lorem",
-                        "ipsum",
-                        "dolor",
-                        "sit",
-                        "amet",
-                        "foo",
-                        "bar",
-                    ]
-                ]
-            ),
-        )
-
-        unigram_surprisal = UniGramSurprisal()
-        unigram_surprisal.fit(self.texts)
-        self.assertEqual(
-            [
-                [
-                    ("lorem", 8.383704292474052),
-                    ("ipsum", 6.798741791752896),
-                    ("dolor", 6.798741791752896),
-                    ("sit", 6.798741791752896),
-                    ("amet", 6.383704292474052),
-                    ("consectetur", 6.383704292474052),
-                    ("adipiscing", 6.798741791752896),
-                ],
-                [
-                    ("feugiat", 8.383704292474052),
-                    ("massa", 6.798741791752896),
-                    ("maximus", 6.383704292474052),
-                    ("ultrices", 8.383704292474052),
-                    ("ipsum", 6.798741791752896),
-                    ("nec", 8.383704292474052),
-                ],
-            ],
-            unigram_surprisal(
-                [
-                    [
-                        "lorem",
-                        "ipsum",
-                        "dolor",
-                        "sit",
-                        "amet",
-                        "consectetur",
-                        "adipiscing",
-                    ],
-                    [
-                        "feugiat",
-                        "massa",
-                        "maximus",
-                        "ultrices",
-                        "ipsum",
-                        "nec",
-                    ],
-                ]
-            ),
-        )
-        self.assertEqual(
-            [
-                [
-                    ("lorem", 8.383704292474052),
-                    ("ipsum", 6.798741791752896),
-                    ("dolor", 6.798741791752896),
-                    ("sit", 6.798741791752896),
-                    ("amet", 6.383704292474052),
-                    ("foo", 8.388017285345136),
-                    ("bar", 8.388017285345136),
-                ]
-            ],
-            unigram_surprisal(
+            unigram_surprisal.surprisal(
                 [
                     [
                         "lorem",
@@ -554,7 +485,7 @@ class NGramSurprisalTests(unittest.TestCase):
                     ("nec", 1.5849625007211563),
                 ],
             ],
-            bigram_surprisal(
+            bigram_surprisal.surprisal(
                 [
                     [
                         "lorem",
@@ -588,7 +519,7 @@ class NGramSurprisalTests(unittest.TestCase):
                     ("bar", 8.388017285345136),
                 ]
             ],
-            bigram_surprisal(
+            bigram_surprisal.surprisal(
                 [
                     [
                         "lorem",
@@ -602,81 +533,6 @@ class NGramSurprisalTests(unittest.TestCase):
                 ]
             ),
         )
-
-        bigram_surprisal = BiGramSurprisal()
-        bigram_surprisal.fit(self.texts)
-        self.assertEqual(
-            [
-                [
-                    ("lorem", 3.321928094887362),
-                    ("ipsum", 0.0),
-                    ("dolor", 1.5849625007211563),
-                    ("sit", 1.5849625007211563),
-                    ("amet", 1.5849625007211563),
-                    ("consectetur", 2.0),
-                    ("adipiscing", 2.0),
-                ],
-                [
-                    ("feugiat", 3.321928094887362),
-                    ("massa", 0.0),
-                    ("maximus", 1.5849625007211563),
-                    ("ultrices", 2.0),
-                    ("ipsum", 0.0),
-                    ("nec", 1.5849625007211563),
-                ],
-            ],
-            bigram_surprisal(
-                [
-                    [
-                        "lorem",
-                        "ipsum",
-                        "dolor",
-                        "sit",
-                        "amet",
-                        "consectetur",
-                        "adipiscing",
-                    ],
-                    [
-                        "feugiat",
-                        "massa",
-                        "maximus",
-                        "ultrices",
-                        "ipsum",
-                        "nec",
-                    ],
-                ]
-            ),
-        )
-        self.assertEqual(
-            [
-                [
-                    ("lorem", 3.321928094887362),
-                    ("ipsum", -0.0),
-                    ("dolor", 1.5849625007211563),
-                    ("sit", 1.5849625007211563),
-                    ("amet", 1.5849625007211563),
-                    ("foo", 2.321928094887362),
-                    ("bar", 8.388017285345136),
-                ]
-            ],
-            bigram_surprisal(
-                [
-                    [
-                        "lorem",
-                        "ipsum",
-                        "dolor",
-                        "sit",
-                        "amet",
-                        "foo",
-                        "bar",
-                    ]
-                ]
-            ),
-        )
-
-
-if __name__ == "__main__":
-    unittest.main()
 
 
 if __name__ == "__main__":

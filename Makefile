@@ -45,6 +45,7 @@ test: test-rs test-py
 
 
 test-py:
+	$(Q)maturin develop
 	$(Q)python3 -m unittest
 
 

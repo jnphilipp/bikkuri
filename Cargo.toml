@@ -1,10 +1,28 @@
 [package]
 name = "bikkuri"
-version = "0.2.0"
+version = "0.2.0-rc1"
 authors = ["J. Nathanael Philipp (jnphilipp) <jnathanael@philipp.land>"]
-edition = "2021"
+description = ""
+license = "GPL-3.0-or-later"
+repository = "https://github.com/jnphilipp/bikkuri"
+readme = "README.md"
+keywords = ["surprisal"]
+edition = "2024"
 
 [lib]
 name = "bikkuri"
 path = "src/lib.rs"
-crate-type = ["lib"]
+crate-type = ["cdylib", "lib"]
+
+[dependencies]
+rand = "*"
+regex = "*"
+json = "*"
+pyo3-built = "*"
+
+[dependencies.pyo3]
+version = "~0.28.3"
+features = ["extension-module", "experimental-inspect"]
+
+[build-dependencies]
+built = { version = "*", features = ["git2", "chrono", "semver"] }

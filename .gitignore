@@ -1,12 +1,15 @@
-bikkuri.egg-info/
 build/
 dist/
-target/
 changelog.latest.md
 
 # Python
 __pycache__/
 .mypy_cache/
+bikkuri.egg-info/
+
+# Rust
+Cargo.lock
+target/
 
 # SublimeText
 *.sublime-project
