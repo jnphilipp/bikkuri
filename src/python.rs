@@ -82,7 +82,8 @@ impl NGramSurprisalPy {
             }
             vec_texts.push(vec_text);
         }
-        Ok(self.ngramsurprisal.fit(&vec_texts))
+        self.ngramsurprisal.fit(&vec_texts);
+        Ok(())
     }
 
     ///Calculate the surprisal for each word in each given text.

@@ -31,7 +31,7 @@ pub struct NGramSurprisal {
 impl NGramSurprisal {
     pub fn new(n: i64) -> NGramSurprisal {
         NGramSurprisal {
-            n: n,
+            n,
             counts: HashMap::new(),
             suffix_counts: HashMap::new(),
         }
@@ -49,15 +49,13 @@ impl NGramSurprisal {
         for _ in 1..self.n {
             parts.push_back("_".to_string());
         }
-        let mut i: i64 = 0;
-        for word in text {
+        for (i, word) in (0_i64..).zip(text) {
             if i == suffix {
                 break;
             } else {
                 parts.pop_front();
                 parts.push_back(word.as_ref().to_string());
             }
-            i += 1;
         }
 
         Some(parts.into_iter().collect::<Vec<_>>().join("_"))
@@ -69,15 +67,14 @@ impl NGramSurprisal {
         for<'a> &'a U: IntoIterator<Item = &'a S>,
     {
         for text in texts {
-            let mut i: i64 = 0;
-            for word in text {
+            for (i, word) in (0_i64..).zip(text) {
                 self.counts
                     .entry(word.as_ref().to_string())
                     .and_modify(|counter| *counter += 1)
                     .or_insert(1);
                 if self.n > 1 {
                     let prefix: String = self.get_prefix(text, i).unwrap();
-                    if let Some(x) = self.suffix_counts.get_mut(&word.as_ref().to_string()) {
+                    if let Some(x) = self.suffix_counts.get_mut(word.as_ref()) {
                         x.entry(prefix)
                             .and_modify(|counter| *counter += 1)
                             .or_insert(1);
@@ -87,7 +84,6 @@ impl NGramSurprisal {
                         self.suffix_counts.insert(word.as_ref().to_string(), suffix);
                     }
                 }
-                i += 1;
             }
         }
     }
@@ -111,9 +107,8 @@ impl NGramSurprisal {
         let mut surprisal_texts = vec![];
         let total: f64 = self.counts.values().map(|&v| v as f64).sum();
         for text in texts {
-            let mut i: i64 = 0;
             let mut surprisal_text = vec![];
-            for word in text {
+            for (i, word) in (0_i64..).zip(text) {
                 let p: f64;
                 let w = word.as_ref().to_string();
                 if self.n == 1 {
@@ -138,7 +133,6 @@ impl NGramSurprisal {
                     }
                 }
                 surprisal_text.push((w, -p.log2()));
-                i += 1;
             }
             surprisal_texts.push(surprisal_text);
         }
