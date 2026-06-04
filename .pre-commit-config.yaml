@@ -22,7 +22,20 @@ repos:
     rev: v2.1.0
     hooks:
       - id: mypy
-  - repo: https://github.com/AndrejOrsula/pre-commit-cargo
-    rev: 0.5.0
+  - repo: local
     hooks:
       - id: cargo-fmt
+        name: cargo fmt
+        description: Format files with cargo fmt.
+        entry: cargo fmt
+        language: system
+        types: [rust]
+        args: ["--"]
+      - id: cargo-check
+        name: cargo check
+        description: Check the package for errors.
+        entry: cargo check
+        language: system
+        types: [file]
+        files: ^.*(Cargo\.toml|Cargo\.lock|.*\.rs)$
+        pass_filenames: false
