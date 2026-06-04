@@ -19,20 +19,18 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+use pyo3::prelude::*;
 use pyo3::{
     Bound, PyResult,
     types::{PyAny, PyAnyMethods, PyModule, PyModuleMethods},
 };
-use pyo3::prelude::*;
 
 use crate::ngram::*;
-
 
 //#[allow(dead_code)]
 mod built_info {
     include!(concat!(env!("OUT_DIR"), "/built.rs"));
 }
-
 
 fn register_submodules(
     module: &Bound<'_, PyModule>,
@@ -53,20 +51,18 @@ fn register_submodules(
     Ok(())
 }
 
-
 /// Python NGramSurprisal
-#[pyclass(name="NGramSurprisal")]
+#[pyclass(name = "NGramSurprisal")]
 struct NGramSurprisalPy {
-    ngramsurprisal: NGramSurprisal
+    ngramsurprisal: NGramSurprisal,
 }
-
 
 #[pymethods]
 impl NGramSurprisalPy {
     #[new]
     fn __new__(n: i64) -> Self {
         NGramSurprisalPy {
-            ngramsurprisal: NGramSurprisal::new(n)
+            ngramsurprisal: NGramSurprisal::new(n),
         }
     }
 
@@ -108,12 +104,11 @@ impl NGramSurprisalPy {
     }
 }
 
-
 #[pyo3::pymodule]
 pub mod bikkuri {
-    use pyo3::prelude::*;
     use super::built_info;
     use super::register_submodules;
+    use pyo3::prelude::*;
 
     #[pymodule_export]
     use super::ngram;
@@ -125,10 +120,16 @@ pub mod bikkuri {
         m.add("__app_name__", env!("CARGO_PKG_NAME"))?;
         m.add("__author__", "J. Nathanael Philipp")?;
         m.add("__email__", "jnathanael@philipp.land")?;
-        m.add("__copyright__", "Copyright 2026 J. Nathanael Philipp (jnphilipp)")?;
+        m.add(
+            "__copyright__",
+            "Copyright 2026 J. Nathanael Philipp (jnphilipp)",
+        )?;
         m.add("__license__", "GPLv3")?;
         m.add("__repository__", "https://github.com/jnphilipp/bikkuri/")?;
-        m.add("__build__", pyo3_built!(py, built_info, "time", "git", "target"))?;
+        m.add(
+            "__build__",
+            pyo3_built!(py, built_info, "time", "git", "target"),
+        )?;
         m.add(
             "VERSION",
             format!(
