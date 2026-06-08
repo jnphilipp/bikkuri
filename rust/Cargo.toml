@@ -1,13 +1,13 @@
 [package]
 name = "bikkuri"
-version = "0.2.0-rc1"
-authors = ["J. Nathanael Philipp (jnphilipp) <jnathanael@philipp.land>"]
-description = "Calculate the surprisal of words in texts."
-license = "GPL-3.0-or-later"
-repository = "https://github.com/jnphilipp/bikkuri"
-readme = "README.md"
-keywords = ["surprisal"]
-edition = "2024"
+version.workspace = true
+authors.workspace = true
+description.workspace = true
+license.workspace = true
+repository.workspace = true
+readme.workspace = true
+keywords.workspace = true
+edition.workspace = true
 include = [
     "**/*.rs",
     "README.md",

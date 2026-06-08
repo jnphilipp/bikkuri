@@ -1,9 +1,13 @@
 [package]
 name = "bikkuripyo3"
-version = "0.2.0-rc1"
-license = "GPL-3.0-or-later"
-readme = "README.md"
-edition = "2024"
+version.workspace = true
+authors.workspace = true
+description.workspace = true
+license.workspace = true
+repository.workspace = true
+readme.workspace = true
+keywords.workspace = true
+edition.workspace = true
 
 [lib]
 name = "bikkuri"
