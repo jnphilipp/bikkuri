@@ -6,6 +6,7 @@ changelog.latest.md
 __pycache__/
 .mypy_cache/
 bikkuri.egg-info/
+bikkuri*.so
 
 # Rust
 Cargo.lock

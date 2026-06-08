@@ -37,6 +37,9 @@ keywords = ["surprisal"]
 "Homepage" = "https://github.com/jnphilipp/bikkuri"
 "Bug Tracker" = "http://github.com/jnphilipp/bikkuri/issues"
 
+[tool.setuptools.packages]
+find = { where = ["python"] }
+
 [[tool.setuptools-rust.ext-modules]]
 target = "bikkuri"
 path = "pyo3/Cargo.toml"

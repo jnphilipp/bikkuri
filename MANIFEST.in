@@ -1,7 +1,0 @@
-include Cargo.toml
-include Cargo.lock
-include LICENSE
-include py.typed
-recursive-include rust *
-recursive-include pyo3 *
-recursive-include py *
