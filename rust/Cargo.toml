@@ -1,0 +1,20 @@
+[package]
+name = "bikkuri"
+version = "0.2.0-rc1"
+authors = ["J. Nathanael Philipp (jnphilipp) <jnathanael@philipp.land>"]
+description = "Calculate the surprisal of words in texts."
+license = "GPL-3.0-or-later"
+repository = "https://github.com/jnphilipp/bikkuri"
+readme = "README.md"
+keywords = ["surprisal"]
+edition = "2024"
+include = [
+    "**/*.rs",
+    "README.md",
+    "LICENSE",
+]
+
+[lib]
+name = "bikkuri"
+path = "src/lib.rs"
+crate-type = ["lib"]

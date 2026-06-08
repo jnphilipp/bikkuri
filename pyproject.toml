@@ -1,6 +1,6 @@
 [build-system]
-requires = ["maturin>=1.0,<2.0"]
-build-backend = "maturin"
+requires = ["setuptools", "setuptools-rust"]
+build-backend = "setuptools.build_meta"
 
 
 [project]
@@ -11,14 +11,13 @@ authors = [
 ]
 description="Calculate the surprisal of words in texts."
 readme = "README.md"
-license = {text = "GPLv3+"}
+license = "GPL-3.0-or-later"
 requires-python = ">=3.11"
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Environment :: Console",
     "Intended Audience :: Education",
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
     "Operating System :: OS Independent",
     "Programming Language :: Rust",
     "Programming Language :: Python",
@@ -38,7 +37,7 @@ keywords = ["surprisal"]
 "Homepage" = "https://github.com/jnphilipp/bikkuri"
 "Bug Tracker" = "http://github.com/jnphilipp/bikkuri/issues"
 
-
-[tool.maturin]
-bindings = "pyo3"
-features = ["pyo3/extension-module", "pyo3/experimental-inspect"]
+[[tool.setuptools-rust.ext-modules]]
+target = "bikkuri"
+path = "pyo3/Cargo.toml"
+binding = "PyO3"

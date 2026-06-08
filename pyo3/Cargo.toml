@@ -1,0 +1,22 @@
+[package]
+name = "bikkuripyo3"
+version = "0.2.0-rc1"
+license = "GPL-3.0-or-later"
+readme = "README.md"
+edition = "2024"
+
+[lib]
+name = "bikkuri"
+path = "src/lib.rs"
+crate-type = ["cdylib"]
+
+[dependencies]
+bikkuri = { path = "../rust" }
+pyo3-built = "*"
+
+[dependencies.pyo3]
+version = "~0.28.3"
+features = ["extension-module", "experimental-inspect"]
+
+[build-dependencies]
+built = { version = "*", features = ["git2", "chrono", "semver"] }

@@ -19,13 +19,17 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+extern crate bikkuri as bikkurirs;
+extern crate pyo3;
+#[macro_use]
+extern crate pyo3_built;
+
+use bikkurirs::ngram::NGramSurprisal;
 use pyo3::prelude::*;
 use pyo3::{
     Bound, PyResult,
     types::{PyAny, PyAnyMethods, PyModule, PyModuleMethods},
 };
-
-use crate::ngram::*;
 
 //#[allow(dead_code)]
 mod built_info {
@@ -118,14 +122,14 @@ pub mod bikkuri {
     fn init(m: &Bound<'_, PyModule>) -> PyResult<()> {
         let py = m.py();
         m.add("__version__", env!("CARGO_PKG_VERSION"))?;
-        m.add("__app_name__", env!("CARGO_PKG_NAME"))?;
+        m.add("__app_name__", "bikkuri")?;
         m.add("__author__", "J. Nathanael Philipp")?;
         m.add("__email__", "jnathanael@philipp.land")?;
         m.add(
             "__copyright__",
             "Copyright 2026 J. Nathanael Philipp (jnphilipp)",
         )?;
-        m.add("__license__", "GPLv3")?;
+        m.add("__license__", "GPL-3.0-or-later")?;
         m.add("__repository__", "https://github.com/jnphilipp/bikkuri/")?;
         m.add(
             "__build__",

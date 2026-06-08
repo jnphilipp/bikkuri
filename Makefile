@@ -2,8 +2,8 @@
 
 SHELL:=/bin/bash
 
-LIB_ENTRY_FILE?=src/lib.rs
-SOURCE_FILES?=$(shell test -e src/ && find src -type f)
+LIB_ENTRY_FILE?=rust/src/lib.rs
+SOURCE_FILES?=$(shell (test -e rust/src || test -e pyo3/src) && find rust/src pyo3/src -type f)
 
 COMPILER?=cargo
 RUSTDOC?=rustdoc
@@ -45,8 +45,8 @@ test: test-rs test-py
 
 
 test-py:
-	$(Q)maturin develop
-	$(Q)python3 -m unittest
+	$(Q)pip install -e .
+	$(Q)python -m unittest python/tests/*.py
 
 
 test-rs: build

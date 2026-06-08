@@ -1,33 +1,8 @@
-[package]
-name = "bikkuri"
-version = "0.2.0-rc1"
-authors = ["J. Nathanael Philipp (jnphilipp) <jnathanael@philipp.land>"]
-description = "Calculate the surprisal of words in texts."
-license = "GPL-3.0-or-later"
-repository = "https://github.com/jnphilipp/bikkuri"
-readme = "README.md"
-keywords = ["surprisal"]
-edition = "2024"
-include = [
-    "**/*.rs",
-    "README.md",
-    "LICENSE",
+[workspace]
+
+members = [
+    "rust",
+    "pyo3"
 ]
 
-[lib]
-name = "bikkuri"
-path = "src/lib.rs"
-crate-type = ["cdylib", "lib"]
-
-[dependencies]
-rand = "*"
-regex = "*"
-json = "*"
-pyo3-built = "*"
-
-[dependencies.pyo3]
-version = "~0.28.3"
-features = ["extension-module", "experimental-inspect"]
-
-[build-dependencies]
-built = { version = "*", features = ["git2", "chrono", "semver"] }
+resolver = "3"
