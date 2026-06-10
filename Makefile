@@ -34,7 +34,7 @@ clean:
 	$(Q)cargo clean
 	$(Q)rm -rf "doc/"
 	@echo "--- Deleted Rust binaries and documentation"
-	$(Q)rm -rf ./build ./dist
+	$(Q)rm -rf ./build ./dist ./python/bikkuri.egg-info
 	$(Q)find . -name __pycache__ -exec rm -rf {} \;
 	@echo "--- Deleed __pycache__ and build and dist dirs"
 
