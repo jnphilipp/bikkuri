@@ -67,7 +67,7 @@ jobs:
         run: |
           python -m build
           auditwheel repair dist/*.whl -w wheelhouse/
-          python -m twine upload wheelhouse/*
+          python -m twine upload wheelhouse/* --verbose
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.TWINE_PYPI_TOKEN }}
