@@ -34,7 +34,6 @@ jobs:
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
   pypi:
-    runs-on: ubuntu-latest
     runs-on: ${{ matrix.platform.runner }}
     strategy:
       matrix:
