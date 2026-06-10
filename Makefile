@@ -76,5 +76,8 @@ changelog.latest.md:
 					break; \
 				fi; \
 			fi; \
+			if [ $$i -ne 0 ]; then \
+				echo -e "" >> changelog.latest.md; \
+			fi; \
 		done \
 	)
