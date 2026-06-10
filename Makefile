@@ -17,6 +17,8 @@ MAN_DIR?=/usr/share/man
 SHARE_DIR?=/usr/share
 DEST_DIR?=
 
+REPO_URL="https://github.com/jnphilipp/bikkuri"
+
 
 ifdef VERBOSE
   Q :=
@@ -62,15 +64,17 @@ changelog.latest.md:
 		declare TAGS=(`git tag`); \
 		for ((i=$${#TAGS[@]};i>=0;i--)); do \
 			if [ $$i -eq 0 ]; then \
-				echo -e "$${TAGS[$$i]}" >> changelog.latest.md; \
-				git log $${TAGS[$$i]} --no-merges --format="  * %h %s"  >> changelog.latest.md; \
+				echo -e "**Version $${TAGS[$$i]}**" >> changelog.latest.md; \
+				git log $${TAGS[$$i]} --no-merges --format="  * [%h](${REPO_URL}/commit/%H) %s"  >> changelog.latest.md; \
 			elif [ $$i -eq $${#TAGS[@]} ] && [ $$(git log $${TAGS[$$i-1]}..HEAD --oneline | wc -l) -ne 0 ]; then \
-				echo -e "$${TAGS[$$i-1]}-$$(git log -n 1 --format='%h')" >> changelog.latest.md; \
-				git log $${TAGS[$$i-1]}..HEAD --no-merges --format="  * %h %s"  >> changelog.latest.md; \
+				echo -e "**Version $${TAGS[$$i-1]}-$$(git log -n 1 --format='%h')**" >> changelog.latest.md; \
+				git log $${TAGS[$$i-1]}..HEAD --no-merges --format="  * [%h](${REPO_URL}/commit/%H) %s"  >> changelog.latest.md; \
 			elif [ $$i -lt $${#TAGS[@]} ]; then \
-				echo -e "$${TAGS[$$i]}" >> changelog.latest.md; \
-				git log $${TAGS[$$i-1]}..$${TAGS[$$i]} --no-merges --format="  * %h %s"  >> changelog.latest.md; \
-				break; \
+				echo -e "**Version $${TAGS[$$i]}**" >> changelog.latest.md; \
+				git log $${TAGS[$$i-1]}..$${TAGS[$$i]} --no-merges --format="  * [%h](${REPO_URL}/commit/%H) %s"  >> changelog.latest.md; \
+				if [[ $${TAGS[$$i-1]} != *"rc"* ]]; then \
+					break; \
+				fi; \
 			fi; \
 		done \
 	)
