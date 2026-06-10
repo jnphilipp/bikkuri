@@ -1,5 +1,6 @@
 build/
 dist/
+wheelhouse/
 changelog.latest.md
 
 # Python
