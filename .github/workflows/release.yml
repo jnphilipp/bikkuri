@@ -82,8 +82,7 @@ jobs:
       - name: Build and upload to PyPI
         run: |
           python -m build
-          python -m twine upload dist/*
+          python -m twine upload dist/* --verbose
         env:
-          MACOSX_DEPLOYMENT_TARGET: "11.0"
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.TWINE_PYPI_TOKEN }}
