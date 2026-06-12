@@ -54,7 +54,7 @@ jobs:
           python -m pip install build setuptools setuptools-rust twine auditwheel patchelf
       - name: Build and upload to PyPI
         run: |
-          python -m build --weehl
+          python -m build --wheel
           auditwheel repair dist/*.whl -w wheelhouse/
           python -m twine upload wheelhouse/*.whl --verbose
         env:
@@ -64,7 +64,7 @@ jobs:
     strategy:
       matrix:
         os: [macos-latest]
-        python-version: ["3.14"]
+        python-version: ["3.11", "3.12", "3.13", "3.14"]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repository
@@ -81,7 +81,7 @@ jobs:
           python -m pip install build setuptools setuptools-rust twine
       - name: Build and upload to PyPI
         run: |
-          python -m build --weehl
+          python -m build --wheel
           python -m twine upload dist/*.whl --verbose
         env:
           MACOSX_DEPLOYMENT_TARGET: "11.0"
