@@ -54,9 +54,9 @@ jobs:
           python -m pip install build setuptools setuptools-rust twine auditwheel patchelf
       - name: Build and upload to PyPI
         run: |
-          python -m build
+          python -m build --weehl
           auditwheel repair dist/*.whl -w wheelhouse/
-          python -m twine upload wheelhouse/*
+          python -m twine upload wheelhouse/*.whl --verbose
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.TWINE_PYPI_TOKEN }}
@@ -81,9 +81,10 @@ jobs:
           python -m pip install build setuptools setuptools-rust twine
       - name: Build and upload to PyPI
         run: |
-          python -m build
-          python -m twine upload dist/* --verbose
+          python -m build --weehl
+          python -m twine upload dist/*.whl --verbose
         env:
+          MACOSX_DEPLOYMENT_TARGET: "11.0"
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.TWINE_PYPI_TOKEN }}
   pypi-windows:
@@ -107,8 +108,8 @@ jobs:
           python -m pip install build setuptools setuptools-rust twine
       - name: Build and upload to PyPI
         run: |
-          python -m build
-          python -m twine upload dist/* --verbose
+          python -m build --wheel
+          python -m twine upload dist/*.whl --verbose
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.TWINE_PYPI_TOKEN }}

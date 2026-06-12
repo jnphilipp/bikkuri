@@ -8,7 +8,7 @@ members = [
 resolver = "3"
 
 [workspace.package]
-version = "0.2.0-rc16"
+version = "0.2.0-rc17"
 authors = ["J. Nathanael Philipp (jnphilipp) <jnathanael@philipp.land>"]
 description = "Calculate the surprisal of words in texts."
 license = "GPL-3.0-or-later"
