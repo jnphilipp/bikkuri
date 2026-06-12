@@ -56,7 +56,7 @@ jobs:
         run: |
           python -m build
           auditwheel repair dist/*.whl -w wheelhouse/
-          python -m twine upload wheelhouse/* --verbose
+          python -m twine upload wheelhouse/*
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.TWINE_PYPI_TOKEN }}
@@ -82,6 +82,8 @@ jobs:
       - name: Build and upload to PyPI
         run: |
           python -m build
+          python -m twine upload dist/*
         env:
+          MACOSX_DEPLOYMENT_TARGET: "11.0"
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.TWINE_PYPI_TOKEN }}
