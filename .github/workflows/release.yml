@@ -36,7 +36,7 @@ jobs:
   pypi-linux:
     strategy:
       matrix:
-        os: [ubuntu-24.04, ubuntu-24.04-arm]
+        os: [ubuntu-latest, ubuntu-24.04-arm]
         python-version: ["3.11", "3.12", "3.13", "3.14"]
     runs-on: ${{ matrix.os }}
     steps:
@@ -63,8 +63,34 @@ jobs:
   pypi-macos:
     strategy:
       matrix:
-        os: [macos-26, macos-26-intel]
+        os: [macos-latest]
         python-version: ["3.14"]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+      - name: Setup Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip wheel
+          python -m pip install build setuptools setuptools-rust twine
+      - name: Build and upload to PyPI
+        run: |
+          python -m build
+          python -m twine upload dist/* --verbose
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.TWINE_PYPI_TOKEN }}
+  pypi-windows:
+    strategy:
+      matrix:
+        os: [windows-latest]
+        python-version: ["3.11", "3.12", "3.13", "3.14"]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repository
