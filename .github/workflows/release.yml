@@ -66,7 +66,7 @@ jobs:
           cd test_pypi
           python -m venv venv
           source venv/bin/activate
-          pip install bikkuri --all-releases
+          pip install bikkuri --all-releases=:all:
           python ../python/tests/test_ngramsurprisal.py
   pypi-macos:
     strategy:
@@ -101,7 +101,7 @@ jobs:
           cd test_pypi
           python -m venv venv
           source venv/bin/activate
-          pip install bikkuri --all-releases
+          pip install bikkuri --all-releases=:all:
           python ../python/tests/test_ngramsurprisal.py
   pypi-windows:
     strategy:
@@ -135,5 +135,5 @@ jobs:
           cd test_pypi
           python -m venv venv
           venv\Scripts\activate
-          pip install bikkuri --all-releases
+          pip install bikkuri --all-releases=:all:
           python ../python/tests/test_ngramsurprisal.py
