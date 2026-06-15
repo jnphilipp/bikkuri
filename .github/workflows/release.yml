@@ -62,6 +62,7 @@ jobs:
           TWINE_PASSWORD: ${{ secrets.TWINE_PYPI_TOKEN }}
       - name: Test PyPI package
         run: |
+          sleep 10
           mkdir test_pypi
           cd test_pypi
           python -m venv venv
@@ -98,6 +99,7 @@ jobs:
           TWINE_PASSWORD: ${{ secrets.TWINE_PYPI_TOKEN }}
       - name: Test PyPI package
         run: |
+          sleep 10
           mkdir test_pypi
           cd test_pypi
           python -m venv venv
@@ -133,6 +135,7 @@ jobs:
           TWINE_PASSWORD: ${{ secrets.TWINE_PYPI_TOKEN }}
       - name: Test PyPI package
         run: |
+          sleep 10
           mkdir test_pypi
           cd test_pypi
           python -m venv venv
