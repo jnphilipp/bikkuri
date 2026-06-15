@@ -60,6 +60,14 @@ jobs:
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.TWINE_PYPI_TOKEN }}
+      - name: Test PyPI package
+        run: |
+          mkdir test_pypi
+          cd test_pypi
+          python -m venv venv
+          source venv/bin/active
+          pip install bikkuri --all-releases
+          python ../python/tests/test_ngramsurprisal.py
   pypi-macos:
     strategy:
       matrix:
@@ -87,6 +95,14 @@ jobs:
           MACOSX_DEPLOYMENT_TARGET: "11.0"
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.TWINE_PYPI_TOKEN }}
+      - name: Test PyPI package
+        run: |
+          mkdir test_pypi
+          cd test_pypi
+          python -m venv venv
+          source venv/bin/active
+          pip install bikkuri --all-releases
+          python ../python/tests/test_ngramsurprisal.py
   pypi-windows:
     strategy:
       matrix:
@@ -113,3 +129,11 @@ jobs:
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.TWINE_PYPI_TOKEN }}
+      - name: Test PyPI package
+        run: |
+          mkdir test_pypi
+          cd test_pypi
+          python -m venv venv
+          source venv/bin/active
+          pip install bikkuri --all-releases
+          python ../python/tests/test_ngramsurprisal.py
