@@ -65,7 +65,7 @@ jobs:
           mkdir test_pypi
           cd test_pypi
           python -m venv venv
-          source venv/bin/active
+          source venv/bin/activate
           pip install bikkuri --all-releases
           python ../python/tests/test_ngramsurprisal.py
   pypi-macos:
@@ -100,7 +100,7 @@ jobs:
           mkdir test_pypi
           cd test_pypi
           python -m venv venv
-          source venv/bin/active
+          source venv/bin/activate
           pip install bikkuri --all-releases
           python ../python/tests/test_ngramsurprisal.py
   pypi-windows:
@@ -134,6 +134,6 @@ jobs:
           mkdir test_pypi
           cd test_pypi
           python -m venv venv
-          source venv/bin/active
+          venv\Scripts\activate
           pip install bikkuri --all-releases
           python ../python/tests/test_ngramsurprisal.py
