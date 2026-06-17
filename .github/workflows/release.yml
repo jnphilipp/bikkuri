@@ -63,7 +63,7 @@ jobs:
   pypi-macos:
     strategy:
       matrix:
-        os: [macos-latest, macos-intel]
+        os: [macos-latest, macos-15-intel, macos-26-intel]
         python-version: ["3.11", "3.12", "3.13", "3.14"]
     runs-on: ${{ matrix.os }}
     steps:
