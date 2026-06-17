@@ -179,6 +179,8 @@ jobs:
     needs: [build_wheels]
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
       - name: Download artifacts
         uses: actions/download-artifact@v8
         with:
