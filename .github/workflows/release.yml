@@ -61,7 +61,6 @@ jobs:
         run: |
           python -m build --wheel
           auditwheel repair dist/*.whl -w wheelhouse/
-        run: python -m cibuildwheel --output-dir wheelhouse
       - name: Upload to PyPI
         run: python -m twine upload wheelhouse/*.whl --verbose
         env:
