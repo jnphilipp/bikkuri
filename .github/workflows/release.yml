@@ -170,7 +170,15 @@ jobs:
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.TWINE_PYPI_TOKEN }}
-      - name: Add to release
-        run: gh release upload "${GITHUB_REF_NAME}" wheelhouse/*.whl
+  update_release:
+    needs: [build_wheels]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v8
+        with:
+          pattern: *.whl
+      - name: Add wheels to release
+        run: gh release upload "${GITHUB_REF_NAME}" *.whl
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
