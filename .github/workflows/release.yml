@@ -39,101 +39,129 @@ jobs:
         run: cargo publish -p bikkuri
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
-  linux-wheels:
+  #linux-wheels:
+  #  needs: [release]
+  #  name: Build wheels on ${{ matrix.os }}
+  #  strategy:
+  #    matrix:
+  #      os: [ubuntu-latest, ubuntu-24.04-arm]
+  #      python-version: ["3.11", "3.12", "3.13", "3.14"]
+  #  runs-on: ${{ matrix.os }}
+  #  steps:
+  #    - name: Checkout repository
+  #      uses: actions/checkout@v6
+  #    - name: Setup Rust
+  #      uses: actions-rust-lang/setup-rust-toolchain@v1
+  #    - name: Set up Python
+  #      uses: actions/setup-python@v6
+  #      with:
+  #        python-version: ${{ matrix.python-version }}
+  #    - name: Install dependencies
+  #      run: |
+  #        python -m pip install --upgrade pip wheel
+  #        python -m pip install build setuptools setuptools-rust twine auditwheel patchelf
+  #    - name: Build wheels
+  #      run: |
+  #        python -m build --wheel
+  #        auditwheel repair dist/*.whl -w wheelhouse/
+  #    - name: Upload to PyPI
+  #      run: python -m twine upload wheelhouse/*.whl --verbose
+  #      env:
+  #        TWINE_USERNAME: __token__
+  #        TWINE_PASSWORD: ${{ secrets.TWINE_PYPI_TOKEN }}
+  #    - name: Add to release
+  #      run: gh release upload "${GITHUB_REF_NAME}" wheelhouse/*.whl
+  #      env:
+  #        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #macos-wheels:
+  #  needs: [release]
+  #  name: Build wheels on ${{ matrix.os }}
+  #  strategy:
+  #    matrix:
+  #      os: [macos-latest]
+  #      python-version: ["3.11", "3.12", "3.13", "3.14"]
+  #  runs-on: ${{ matrix.os }}
+  #  steps:
+  #    - name: Checkout repository
+  #      uses: actions/checkout@v6
+  #    - name: Setup Rust
+  #      uses: actions-rust-lang/setup-rust-toolchain@v1
+  #    - name: Set up Python
+  #      uses: actions/setup-python@v6
+  #      with:
+  #        python-version: ${{ matrix.python-version }}
+  #    - name: Install dependencies
+  #      run: |
+  #        python -m pip install --upgrade pip wheel
+  #        python -m pip install build setuptools setuptools-rust twine delocate
+  #    - name: Build wheels
+  #      run: |
+  #        python -m build --wheel
+  #        delocate-wheel --require-archs arm64 -w wheelhouse/*.whl -v dist/*.whl
+  #      env:
+  #        MACOSX_DEPLOYMENT_TARGET: "11.0"
+  #    - name: Upload to PyPI
+  #      run: python -m twine upload wheelhouse/*.whl --verbose
+  #      env:
+  #        TWINE_USERNAME: __token__
+  #        TWINE_PASSWORD: ${{ secrets.TWINE_PYPI_TOKEN }}
+  #    - name: Add to release
+  #      run: gh release upload "${GITHUB_REF_NAME}" wheelhouse/*.whl
+  #      env:
+  #        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #windows-wheels:
+  #  needs: [release]
+  #  name: Build wheels on ${{ matrix.os }}
+  #  strategy:
+  #    matrix:
+  #      os: [windows-latest, windows-11-arm]
+  #      python-version: ["3.11", "3.12", "3.13", "3.14"]
+  #  runs-on: ${{ matrix.os }}
+  #  steps:
+  #    - name: Checkout repository
+  #      uses: actions/checkout@v6
+  #    - name: Setup Rust
+  #      uses: actions-rust-lang/setup-rust-toolchain@v1
+  #    - name: Set up Python
+  #      uses: actions/setup-python@v6
+  #      with:
+  #        python-version: ${{ matrix.python-version }}
+  #    - name: Install dependencies
+  #      run: |
+  #        python -m pip install --upgrade pip wheel
+  #        python -m pip install build setuptools setuptools-rust twine delvewheel
+  #    - name: Build wheels
+  #      run: |
+  #        python -m build --wheel
+  #        delvewheel repair -w wheelhouse -v dist/*.whl
+  #    - name: Upload to PyPI
+  #      run: python -m twine upload wheelhouse/*.whl --verbose
+  #      env:
+  #        TWINE_USERNAME: __token__
+  #        TWINE_PASSWORD: ${{ secrets.TWINE_PYPI_TOKEN }}
+  #    - name: Add to release
+  #      run: gh release upload "${GITHUB_REF_NAME}" wheelhouse/*.whl
+  #      env:
+  #        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  build_wheels:
     needs: [release]
     name: Build wheels on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, ubuntu-24.04-arm]
-        python-version: ["3.11", "3.12", "3.13", "3.14"]
-    runs-on: ${{ matrix.os }}
+        os: [ubuntu-latest, ubuntu-24.04-arm, windows-latest, windows-11-arm, macos-15-intel, macos-14]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
-      - name: Setup Rust
-        uses: actions-rust-lang/setup-rust-toolchain@v1
-      - name: Set up Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: ${{ matrix.python-version }}
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip wheel
-          python -m pip install build setuptools setuptools-rust twine auditwheel patchelf
       - name: Build wheels
-        run: |
-          python -m build --wheel
-          auditwheel repair dist/*.whl -w wheelhouse/
-      - name: Upload to PyPI
-        run: python -m twine upload wheelhouse/*.whl --verbose
-        env:
-          TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.TWINE_PYPI_TOKEN }}
-      - name: Add to release
-        run: gh release upload "${GITHUB_REF_NAME}" wheelhouse/*.whl
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  macos-wheels:
-    needs: [release]
-    name: Build wheels on ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [macos-latest]
-        python-version: ["3.11", "3.12", "3.13", "3.14"]
-    runs-on: ${{ matrix.os }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
-      - name: Setup Rust
-        uses: actions-rust-lang/setup-rust-toolchain@v1
-      - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: pypa/cibuildwheel@v4.1.0
         with:
-          python-version: ${{ matrix.python-version }}
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip wheel
-          python -m pip install build setuptools setuptools-rust twine delocate
-      - name: Build wheels
-        run: |
-          python -m build --wheel
-          delocate-wheel --require-archs arm64 -w wheelhouse/*.whl -v dist/*.whl
+          output-dir: wheelhouse
         env:
           MACOSX_DEPLOYMENT_TARGET: "11.0"
-      - name: Upload to PyPI
-        run: python -m twine upload wheelhouse/*.whl --verbose
-        env:
-          TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.TWINE_PYPI_TOKEN }}
-      - name: Add to release
-        run: gh release upload "${GITHUB_REF_NAME}" wheelhouse/*.whl
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  windows-wheels:
-    needs: [release]
-    name: Build wheels on ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [windows-latest, windows-11-arm]
-        python-version: ["3.11", "3.12", "3.13", "3.14"]
-    runs-on: ${{ matrix.os }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
-      - name: Setup Rust
-        uses: actions-rust-lang/setup-rust-toolchain@v1
-      - name: Set up Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: ${{ matrix.python-version }}
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip wheel
-          python -m pip install build setuptools setuptools-rust twine delvewheel
-      - name: Build wheels
-        run: |
-          python -m build --wheel
-          delvewheel repair -w wheelhouse -v dist/*.whl
+          CIBW_BEFORE_ALL_LINUX: curl -sSf https://sh.rustup.rs | sh -s -- -y
+          CIBW_BEFORE_ALL_WINDOWS: rustup target add i686-pc-windows-msvc
+          CIBW_ENVIRONMENT_LINUX: "PATH=$HOME/.cargo/bin:$PATH"
       - name: Upload to PyPI
         run: python -m twine upload wheelhouse/*.whl --verbose
         env:
