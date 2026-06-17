@@ -170,6 +170,10 @@ jobs:
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.TWINE_PYPI_TOKEN }}
+      - name: Upload wheels
+        uses: actions/upload-artifact@v7
+        with:
+          path: wheelhouse/*.whl
   update_release:
     needs: [build_wheels]
     runs-on: ubuntu-latest
