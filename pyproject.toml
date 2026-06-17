@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "bikkuri"
-version = "0.2.0-rc27"
+version = "0.2.0-rc28"
 authors = [
     {name = "J. Nathanael Philipp", email = "jnathanael@philipp.land"}
 ]
@@ -44,3 +44,10 @@ find = { where = ["python"] }
 target = "bikkuri"
 path = "pyo3/Cargo.toml"
 binding = "PyO3"
+
+
+[tool.cibuildwheel]
+archs = ["native"]
+build = "*"
+# No rust on musllinux
+skip = ["*-musllinux_i686"]
