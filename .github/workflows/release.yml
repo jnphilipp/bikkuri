@@ -98,6 +98,8 @@ jobs:
         run: |
           python -m build --wheel
           delocate-wheel --require-archs arm64 -w wheelhouse/*.whl -v dist/*.whl
+        env:
+          MACOSX_DEPLOYMENT_TARGET: "11.0"
       - name: Upload to PyPI
         run: python -m twine upload wheelhouse/*.whl --verbose
         env:
