@@ -23,7 +23,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           if [[ "${GITHUB_REF_NAME}" == *-rc* ]]; then
-            gh release create "${GITHUB_REF_NAME}" --repo "$GITHUB_REPOSITORY" --title "Release ${GITHUB_REF_NAME}" -F changelog.latest.md --draft
+            gh release create "${GITHUB_REF_NAME}" --repo "$GITHUB_REPOSITORY" --title "Release ${GITHUB_REF_NAME}" -F changelog.latest.md --prerelease
           else
             gh release create "${GITHUB_REF_NAME}" --repo "$GITHUB_REPOSITORY" --title "Release ${GITHUB_REF_NAME}" -F changelog.latest.md
           fi
@@ -44,6 +44,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, ubuntu-24.04-arm]
         python-version: ["3.11", "3.12", "3.13", "3.14"]
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -75,6 +76,7 @@ jobs:
       matrix:
         os: [macos-latest, macos-15-intel]
         python-version: ["3.11", "3.12", "3.13", "3.14"]
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -106,6 +108,7 @@ jobs:
       matrix:
         os: [windows-latest, windows-11-arm]
         python-version: ["3.11", "3.12", "3.13", "3.14"]
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
