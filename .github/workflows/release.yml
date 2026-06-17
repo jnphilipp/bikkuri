@@ -182,8 +182,10 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v8
         with:
-          pattern: "*"
+          pattern: cibw-wheels-*
+          path: dist
+          merge-multiple: true
       - name: Add wheels to release
-        run: gh release upload "${GITHUB_REF_NAME}" *.whl
+        run: gh release upload "${GITHUB_REF_NAME}" dist/*.whl
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
