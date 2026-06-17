@@ -19,14 +19,14 @@ jobs:
       - name: Make changelog
         run: make changelog.latest.md
       - name: Create Release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           if [[ "${GITHUB_REF_NAME}" == *-rc* ]]; then
             gh release create "${GITHUB_REF_NAME}" --repo "$GITHUB_REPOSITORY" --title "Release ${GITHUB_REF_NAME}" -F changelog.latest.md --prerelease
           else
             gh release create "${GITHUB_REF_NAME}" --repo "$GITHUB_REPOSITORY" --title "Release ${GITHUB_REF_NAME}" -F changelog.latest.md
           fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   cratesio:
     needs: [release]
     runs-on: ubuntu-latest
@@ -71,6 +71,8 @@ jobs:
           TWINE_PASSWORD: ${{ secrets.TWINE_PYPI_TOKEN }}
       - name: Add to release
         run: gh release upload "${GITHUB_REF_NAME}" wheelhouse/*.whl
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   macos-wheels:
     needs: [release]
     name: Build wheels on ${{ matrix.os }}
@@ -95,7 +97,7 @@ jobs:
       - name: Build wheels
         run: |
           python -m build --wheel
-          delocate-wheel -w wheelhouse/*.whl -v dist/*.whl
+          delocate-wheel --require-archs arm64 -w wheelhouse/*.whl -v dist/*.whl
       - name: Upload to PyPI
         run: python -m twine upload wheelhouse/*.whl --verbose
         env:
@@ -103,6 +105,8 @@ jobs:
           TWINE_PASSWORD: ${{ secrets.TWINE_PYPI_TOKEN }}
       - name: Add to release
         run: gh release upload "${GITHUB_REF_NAME}" wheelhouse/*.whl
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   windows-wheels:
     needs: [release]
     name: Build wheels on ${{ matrix.os }}
@@ -135,3 +139,5 @@ jobs:
           TWINE_PASSWORD: ${{ secrets.TWINE_PYPI_TOKEN }}
       - name: Add to release
         run: gh release upload "${GITHUB_REF_NAME}" wheelhouse/*.whl
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
