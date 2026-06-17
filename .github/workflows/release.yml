@@ -163,7 +163,10 @@ jobs:
           CIBW_BEFORE_ALL_WINDOWS: rustup target add i686-pc-windows-msvc
           CIBW_ENVIRONMENT_LINUX: "PATH=$HOME/.cargo/bin:$PATH"
       - name: Upload to PyPI
-        run: python -m twine upload wheelhouse/*.whl --verbose
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install twine
+          python -m twine upload wheelhouse/*.whl --verbose
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.TWINE_PYPI_TOKEN }}
