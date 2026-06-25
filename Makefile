@@ -46,9 +46,9 @@ build: ${LIB_ENTRY_FILE} ${SOURCE_FILES}
 test: test-rs test-py
 
 
-test-py:
-	$(Q)pip install -e .
-	$(Q)python -m unittest python/tests/*.py
+test-py: venv
+	$(Q)venv/bin/python -m pip install -e .
+	$(Q)venv/bin/python -m unittest python/tests/*.py
 
 
 test-rs: build
@@ -58,6 +58,8 @@ test-rs: build
 release: test
 	$(Q)echo "Finished building bikkuri.so."
 
+venv:
+	$(Q)python -m venv venv
 
 changelog.latest.md:
 	$(Q)( \
