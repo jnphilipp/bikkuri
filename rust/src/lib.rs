@@ -19,6 +19,6 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-pub use ngram::NGramSurprisal;
 
+pub use ngram::NGramFrequencySurprisal;
 pub mod ngram;

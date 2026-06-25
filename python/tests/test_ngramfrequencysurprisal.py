@@ -23,11 +23,11 @@
 
 import unittest
 
-from bikkuri.ngram import NGramSurprisal
+from bikkuri.ngram import NGramFrequencySurprisal
 
 
-class NGramSurprisalTests(unittest.TestCase):
-    """TopicContextModel tests."""
+class NGramFrquencySurprisalTests(unittest.TestCase):
+    """NGramFrquencySurprisal tests."""
 
     def setUp(self) -> None:
         """Set up."""
@@ -388,10 +388,10 @@ class NGramSurprisalTests(unittest.TestCase):
             ],
         ]
 
-    def test_unigram_surprisal(self) -> None:
+    def test_unigram_frequency_surprisal(self) -> None:
         """Test unigram surprisal."""
-        unigram_surprisal = NGramSurprisal(1)
-        unigram_surprisal.fit(self.texts)
+        model = NGramFrequencySurprisal(1)
+        model.fit(self.texts)
         self.assertEqual(
             [
                 [
@@ -412,7 +412,7 @@ class NGramSurprisalTests(unittest.TestCase):
                     ("nec", 8.383704292474052),
                 ],
             ],
-            unigram_surprisal.surprisal(
+            model.surprisal(
                 [
                     [
                         "lorem",
@@ -446,7 +446,7 @@ class NGramSurprisalTests(unittest.TestCase):
                     ("bar", 8.388017285345136),
                 ]
             ],
-            unigram_surprisal.surprisal(
+            model.surprisal(
                 [
                     [
                         "lorem",
@@ -461,10 +461,10 @@ class NGramSurprisalTests(unittest.TestCase):
             ),
         )
 
-    def test_bigram_surprisal(self) -> None:
-        """Test bigram surprisal."""
-        bigram_surprisal = NGramSurprisal(2)
-        bigram_surprisal.fit(self.texts)
+    def test_bigram_frquency_surprisal(self) -> None:
+        """Test bigram frequency surprisal."""
+        model = NGramFrequencySurprisal(2)
+        model.fit(self.texts)
         self.assertEqual(
             [
                 [
@@ -485,7 +485,7 @@ class NGramSurprisalTests(unittest.TestCase):
                     ("nec", 1.5849625007211563),
                 ],
             ],
-            bigram_surprisal.surprisal(
+            model.surprisal(
                 [
                     [
                         "lorem",
@@ -519,7 +519,7 @@ class NGramSurprisalTests(unittest.TestCase):
                     ("bar", 8.388017285345136),
                 ]
             ],
-            bigram_surprisal.surprisal(
+            model.surprisal(
                 [
                     [
                         "lorem",

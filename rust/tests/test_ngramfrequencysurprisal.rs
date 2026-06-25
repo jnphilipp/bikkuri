@@ -21,7 +21,7 @@
 
 extern crate bikkuri;
 
-use bikkuri::ngram::NGramSurprisal;
+use bikkuri::ngram::NGramFrequencySurprisal;
 
 fn get_texts() -> Vec<Vec<&'static str>> {
     vec![
@@ -368,11 +368,11 @@ fn get_texts() -> Vec<Vec<&'static str>> {
 }
 
 #[test]
-fn test_unigram_surprisal() {
-    let mut unigram_surprisal = NGramSurprisal::new(1);
+fn test_unigram_frequency_surprisal() {
+    let mut model = NGramFrequencySurprisal::new(1);
     assert_eq!(
         None,
-        unigram_surprisal.surprisal(&[[
+        model.surprisal(&[[
             "lorem",
             "ipsum",
             "dolor",
@@ -383,7 +383,7 @@ fn test_unigram_surprisal() {
         ]])
     );
     let texts = get_texts();
-    unigram_surprisal.fit(&texts);
+    model.fit(&texts);
     assert_eq!(
         Some(vec![
             vec![
@@ -404,7 +404,7 @@ fn test_unigram_surprisal() {
                 ("nec".to_string(), 8.383704292474052),
             ],
         ]),
-        unigram_surprisal.surprisal(&vec![
+        model.surprisal(&vec![
             vec![
                 "lorem",
                 "ipsum",
@@ -426,16 +426,16 @@ fn test_unigram_surprisal() {
             ("foo".to_string(), 8.388017285345136),
             ("bar".to_string(), 8.388017285345136),
         ]]),
-        unigram_surprisal.surprisal(&[["lorem", "ipsum", "dolor", "sit", "foo", "bar"]])
+        model.surprisal(&[["lorem", "ipsum", "dolor", "sit", "foo", "bar"]])
     );
 }
 
 #[test]
 fn test_bigram_surprisal() {
-    let mut bigram_surprisal = NGramSurprisal::new(2);
+    let mut model = NGramFrequencySurprisal::new(2);
     assert_eq!(
         None,
-        bigram_surprisal.surprisal(&[[
+        model.surprisal(&[[
             "lorem",
             "ipsum",
             "dolor",
@@ -446,7 +446,7 @@ fn test_bigram_surprisal() {
         ]])
     );
     let texts = get_texts();
-    bigram_surprisal.fit(&texts);
+    model.fit(&texts);
     assert_eq!(
         Some(vec![
             vec![
@@ -467,7 +467,7 @@ fn test_bigram_surprisal() {
                 ("nec".to_string(), 1.5849625007211563),
             ],
         ]),
-        bigram_surprisal.surprisal(&vec![
+        model.surprisal(&vec![
             vec![
                 "lorem",
                 "ipsum",
@@ -483,13 +483,13 @@ fn test_bigram_surprisal() {
     assert_eq!(
         Some(vec![vec![
             ("lorem".to_string(), 3.321928094887362),
-            ("ipsum".to_string(), -0.0),
+            ("ipsum".to_string(), 0.0),
             ("dolor".to_string(), 1.5849625007211563),
             ("sit".to_string(), 1.5849625007211563),
             ("amet".to_string(), 1.5849625007211563),
             ("foo".to_string(), 2.321928094887362),
             ("bar".to_string(), 8.388017285345136),
         ]]),
-        bigram_surprisal.surprisal(&[["lorem", "ipsum", "dolor", "sit", "amet", "foo", "bar"]])
+        model.surprisal(&[["lorem", "ipsum", "dolor", "sit", "amet", "foo", "bar"]])
     );
 }

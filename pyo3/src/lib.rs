@@ -24,7 +24,7 @@ extern crate pyo3;
 #[macro_use]
 extern crate pyo3_built;
 
-use bikkurirs::ngram::NGramSurprisal;
+use bikkurirs::ngram::NGramFrequencySurprisal;
 use pyo3::prelude::*;
 use pyo3::{
     Bound, PyResult,
@@ -55,18 +55,18 @@ fn register_submodules(
     Ok(())
 }
 
-/// Python NGramSurprisal
-#[pyclass(name = "NGramSurprisal")]
-struct NGramSurprisalPy {
-    ngramsurprisal: NGramSurprisal,
+/// Calculates the surprisal, using Shannon Information, based the n-gram frequency.
+#[pyclass(name = "NGramFrequencySurprisal")]
+struct NGramFrequencySurprisalPy {
+    model: NGramFrequencySurprisal,
 }
 
 #[pymethods]
-impl NGramSurprisalPy {
+impl NGramFrequencySurprisalPy {
     #[new]
     fn __new__(n: i64) -> Self {
-        NGramSurprisalPy {
-            ngramsurprisal: NGramSurprisal::new(n),
+        NGramFrequencySurprisalPy {
+            model: NGramFrequencySurprisal::new(n),
         }
     }
 
@@ -86,7 +86,7 @@ impl NGramSurprisalPy {
             }
             vec_texts.push(vec_text);
         }
-        self.ngramsurprisal.fit(&vec_texts);
+        self.model.fit(&vec_texts);
         Ok(())
     }
 
@@ -105,7 +105,7 @@ impl NGramSurprisalPy {
             }
             vec_texts.push(vec_text);
         }
-        Ok(self.ngramsurprisal.surprisal(&vec_texts))
+        Ok(self.model.surprisal(&vec_texts))
     }
 }
 
@@ -151,5 +151,5 @@ pub mod bikkuri {
 #[pyo3::pymodule(submodule, name = "ngram")]
 pub mod ngram {
     #[pymodule_export]
-    use super::NGramSurprisalPy;
+    use super::NGramFrequencySurprisalPy;
 }

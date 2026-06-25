@@ -21,16 +21,17 @@
 
 use std::collections::{HashMap, VecDeque};
 
-/// NGramSurprisal
-pub struct NGramSurprisal {
+/// Calculates the surprisal, using Shannon Information, based the n-gram frequency.
+#[derive(Clone, Debug)]
+pub struct NGramFrequencySurprisal {
     pub n: i64,
     counts: HashMap<String, i64>,
     suffix_counts: HashMap<String, HashMap<String, i64>>,
 }
 
-impl NGramSurprisal {
-    pub fn new(n: i64) -> NGramSurprisal {
-        NGramSurprisal {
+impl NGramFrequencySurprisal {
+    pub fn new(n: i64) -> NGramFrequencySurprisal {
+        NGramFrequencySurprisal {
             n,
             counts: HashMap::new(),
             suffix_counts: HashMap::new(),
