@@ -386,6 +386,81 @@ class NGramFrquencySurprisalTests(unittest.TestCase):
                 "nisi",
                 "euismod",
             ],
+            [
+                "lorem",
+                "ipsum",
+                "dolor",
+                "sit",
+                "amet",
+                "consectetur",
+                "adipiscing",
+                "elit",
+                "sed",
+                "do",
+                "eiusmod",
+                "tempor",
+                "incididunt",
+                "ut",
+                "labore",
+                "et",
+                "dolore",
+                "magna",
+                "aliqua",
+            ],
+            [
+                "ante",
+                "risus",
+                "convallis",
+                "ad",
+                "euismod",
+                "velit",
+                "eleifend",
+                "aenean",
+                "fames",
+                "curabitur",
+                "semper",
+                "lorem",
+                "aptent",
+                "tempus",
+            ],
+            [
+                "accumsan",
+                "maximus",
+                "ultricies",
+                "pretium",
+                "condimentum",
+                "molestie",
+                "porta",
+                "nec",
+                "malesuada",
+                "tempor",
+            ],
+            [
+                "porttitor",
+                "lacinia",
+                "porttitor",
+                "varius",
+                "eleifend",
+                "tempus",
+                "curabitur",
+            ],
+            [
+                "duis",
+                "pulvinar",
+                "taciti",
+                "potenti",
+                "vestibulum",
+                "aptent",
+                "hac",
+                "purus",
+                "maximus",
+                "ut",
+                "fringilla",
+                "quisque",
+                "donec",
+                "tortor",
+                "suspendisse",
+            ],
         ]
 
     def test_unigram_frequency_surprisal(self) -> None:
@@ -395,21 +470,21 @@ class NGramFrquencySurprisalTests(unittest.TestCase):
         self.assertEqual(
             [
                 [
-                    ("lorem", 8.383704292474052),
-                    ("ipsum", 6.798741791752896),
-                    ("dolor", 6.798741791752896),
-                    ("sit", 6.798741791752896),
-                    ("amet", 6.383704292474052),
-                    ("consectetur", 6.383704292474052),
-                    ("adipiscing", 6.798741791752896),
+                    ("lorem", 7.05528243550119),
+                    ("ipsum", 6.640244936222346),
+                    ("dolor", 6.640244936222346),
+                    ("sit", 6.640244936222346),
+                    ("amet", 6.318316841334983),
+                    ("consectetur", 6.318316841334983),
+                    ("adipiscing", 6.640244936222346),
                 ],
                 [
-                    ("feugiat", 8.383704292474052),
-                    ("massa", 6.798741791752896),
-                    ("maximus", 6.383704292474052),
-                    ("ultrices", 8.383704292474052),
-                    ("ipsum", 6.798741791752896),
-                    ("nec", 8.383704292474052),
+                    ("feugiat", 8.640244936222345),
+                    ("massa", 7.05528243550119),
+                    ("maximus", 6.05528243550119),
+                    ("ultrices", 8.640244936222345),
+                    ("ipsum", 6.640244936222346),
+                    ("nec", 7.640244936222346),
                 ],
             ],
             model.surprisal(
@@ -437,13 +512,13 @@ class NGramFrquencySurprisalTests(unittest.TestCase):
         self.assertEqual(
             [
                 [
-                    ("lorem", 8.383704292474052),
-                    ("ipsum", 6.798741791752896),
-                    ("dolor", 6.798741791752896),
-                    ("sit", 6.798741791752896),
-                    ("amet", 6.383704292474052),
-                    ("foo", 8.388017285345136),
-                    ("bar", 8.388017285345136),
+                    ("lorem", 7.05528243550119),
+                    ("ipsum", 6.640244936222346),
+                    ("dolor", 6.640244936222346),
+                    ("sit", 6.640244936222346),
+                    ("amet", 6.318316841334983),
+                    ("foo", 8.643856189774725),
+                    ("bar", 8.643856189774725),
                 ]
             ],
             model.surprisal(
@@ -468,21 +543,21 @@ class NGramFrquencySurprisalTests(unittest.TestCase):
         self.assertEqual(
             [
                 [
-                    ("lorem", 3.321928094887362),
-                    ("ipsum", 0.0),
-                    ("dolor", 1.5849625007211563),
-                    ("sit", 1.5849625007211563),
-                    ("amet", 1.5849625007211563),
-                    ("consectetur", 2.0),
-                    ("adipiscing", 2.0),
+                    ("lorem", 2.9068905956085187),
+                    ("ipsum", 0.5849625007211563),
+                    ("dolor", 1.0),
+                    ("sit", 1.0),
+                    ("amet", 1.0),
+                    ("consectetur", 1.3219280948873622),
+                    ("adipiscing", 1.3219280948873622),
                 ],
                 [
-                    ("feugiat", 3.321928094887362),
-                    ("massa", 0.0),
+                    ("feugiat", 3.9068905956085187),
+                    ("massa", -0.0),
                     ("maximus", 1.5849625007211563),
-                    ("ultrices", 2.0),
-                    ("ipsum", 0.0),
-                    ("nec", 1.5849625007211563),
+                    ("ultrices", 2.584962500721156),
+                    ("ipsum", -0.0),
+                    ("nec", 2.0),
                 ],
             ],
             model.surprisal(
@@ -510,13 +585,86 @@ class NGramFrquencySurprisalTests(unittest.TestCase):
         self.assertEqual(
             [
                 [
-                    ("lorem", 3.321928094887362),
+                    ("lorem", 2.9068905956085187),
+                    ("ipsum", 0.5849625007211563),
+                    ("dolor", 1.0),
+                    ("sit", 1.0),
+                    ("amet", 1.0),
+                    ("foo", 2.584962500721156),
+                    ("bar", 8.643856189774725),
+                ]
+            ],
+            model.surprisal(
+                [
+                    [
+                        "lorem",
+                        "ipsum",
+                        "dolor",
+                        "sit",
+                        "amet",
+                        "foo",
+                        "bar",
+                    ]
+                ]
+            ),
+        )
+
+    def test_trigram_frquency_surprisal(self) -> None:
+        """Test trigram frequency surprisal."""
+        model = NGramFrequencySurprisal(3)
+        model.fit(self.texts)
+        self.assertEqual(
+            [
+                [
+                    ("lorem", 2.9068905956085187),
                     ("ipsum", -0.0),
-                    ("dolor", 1.5849625007211563),
-                    ("sit", 1.5849625007211563),
-                    ("amet", 1.5849625007211563),
-                    ("foo", 2.321928094887362),
-                    ("bar", 8.388017285345136),
+                    ("dolor", 0.0),
+                    ("sit", 0.0),
+                    ("amet", 0.0),
+                    ("consectetur", 0.0),
+                    ("adipiscing", 0.0),
+                ],
+                [
+                    ("feugiat", 3.9068905956085187),
+                    ("massa", -0.0),
+                    ("maximus", -0.0),
+                    ("ultrices", -0.0),
+                    ("ipsum", 0.0),
+                    ("nec", 0.0),
+                ],
+            ],
+            model.surprisal(
+                [
+                    [
+                        "lorem",
+                        "ipsum",
+                        "dolor",
+                        "sit",
+                        "amet",
+                        "consectetur",
+                        "adipiscing",
+                    ],
+                    [
+                        "feugiat",
+                        "massa",
+                        "maximus",
+                        "ultrices",
+                        "ipsum",
+                        "nec",
+                    ],
+                ]
+            ),
+        )
+        self.assertEqual(
+            [
+                [
+                    ("lorem", 2.9068905956085187),
+                    ("ipsum", -0.0),
+                    ("dolor", -0.0),
+                    ("sit", -0.0),
+                    ("amet", -0.0),
+                    ("foo", 1.5849625007211563),
+                    ("bar", 8.643856189774725),
                 ]
             ],
             model.surprisal(

@@ -364,6 +364,81 @@ fn get_texts() -> Vec<Vec<&'static str>> {
             "nisi",
             "euismod",
         ],
+        vec![
+            "lorem",
+            "ipsum",
+            "dolor",
+            "sit",
+            "amet",
+            "consectetur",
+            "adipiscing",
+            "elit",
+            "sed",
+            "do",
+            "eiusmod",
+            "tempor",
+            "incididunt",
+            "ut",
+            "labore",
+            "et",
+            "dolore",
+            "magna",
+            "aliqua",
+        ],
+        vec![
+            "ante",
+            "risus",
+            "convallis",
+            "ad",
+            "euismod",
+            "velit",
+            "eleifend",
+            "aenean",
+            "fames",
+            "curabitur",
+            "semper",
+            "lorem",
+            "aptent",
+            "tempus",
+        ],
+        vec![
+            "accumsan",
+            "maximus",
+            "ultricies",
+            "pretium",
+            "condimentum",
+            "molestie",
+            "porta",
+            "nec",
+            "malesuada",
+            "tempor",
+        ],
+        vec![
+            "porttitor",
+            "lacinia",
+            "porttitor",
+            "varius",
+            "eleifend",
+            "tempus",
+            "curabitur",
+        ],
+        vec![
+            "duis",
+            "pulvinar",
+            "taciti",
+            "potenti",
+            "vestibulum",
+            "aptent",
+            "hac",
+            "purus",
+            "maximus",
+            "ut",
+            "fringilla",
+            "quisque",
+            "donec",
+            "tortor",
+            "suspendisse",
+        ],
     ]
 }
 
@@ -387,21 +462,21 @@ fn test_unigram_frequency_surprisal() {
     assert_eq!(
         Some(vec![
             vec![
-                ("lorem".to_string(), 8.383704292474052),
-                ("ipsum".to_string(), 6.798741791752896),
-                ("dolor".to_string(), 6.798741791752896),
-                ("sit".to_string(), 6.798741791752896),
-                ("amet".to_string(), 6.383704292474052),
-                ("consectetur".to_string(), 6.383704292474052),
-                ("adipiscing".to_string(), 6.798741791752896),
+                ("lorem".to_string(), 7.05528243550119),
+                ("ipsum".to_string(), 6.640244936222346),
+                ("dolor".to_string(), 6.640244936222346),
+                ("sit".to_string(), 6.640244936222346),
+                ("amet".to_string(), 6.318316841334983),
+                ("consectetur".to_string(), 6.318316841334983),
+                ("adipiscing".to_string(), 6.640244936222346),
             ],
             vec![
-                ("feugiat".to_string(), 8.383704292474052),
-                ("massa".to_string(), 6.798741791752896),
-                ("maximus".to_string(), 6.383704292474052),
-                ("ultrices".to_string(), 8.383704292474052),
-                ("ipsum".to_string(), 6.798741791752896),
-                ("nec".to_string(), 8.383704292474052),
+                ("feugiat".to_string(), 8.640244936222345),
+                ("massa".to_string(), 7.05528243550119),
+                ("maximus".to_string(), 6.05528243550119),
+                ("ultrices".to_string(), 8.640244936222345),
+                ("ipsum".to_string(), 6.640244936222346),
+                ("nec".to_string(), 7.640244936222346),
             ],
         ]),
         model.surprisal(&vec![
@@ -419,12 +494,12 @@ fn test_unigram_frequency_surprisal() {
     );
     assert_eq!(
         Some(vec![vec![
-            ("lorem".to_string(), 8.383704292474052),
-            ("ipsum".to_string(), 6.798741791752896),
-            ("dolor".to_string(), 6.798741791752896),
-            ("sit".to_string(), 6.798741791752896),
-            ("foo".to_string(), 8.388017285345136),
-            ("bar".to_string(), 8.388017285345136),
+            ("lorem".to_string(), 7.05528243550119),
+            ("ipsum".to_string(), 6.640244936222346),
+            ("dolor".to_string(), 6.640244936222346),
+            ("sit".to_string(), 6.640244936222346),
+            ("foo".to_string(), 8.643856189774725),
+            ("bar".to_string(), 8.643856189774725),
         ]]),
         model.surprisal(&[["lorem", "ipsum", "dolor", "sit", "foo", "bar"]])
     );
@@ -450,21 +525,21 @@ fn test_bigram_surprisal() {
     assert_eq!(
         Some(vec![
             vec![
-                ("lorem".to_string(), 3.321928094887362),
-                ("ipsum".to_string(), 0.0),
-                ("dolor".to_string(), 1.5849625007211563),
-                ("sit".to_string(), 1.5849625007211563),
-                ("amet".to_string(), 1.5849625007211563),
-                ("consectetur".to_string(), 2.0),
-                ("adipiscing".to_string(), 2.0),
+                ("lorem".to_string(), 2.9068905956085187),
+                ("ipsum".to_string(), 0.5849625007211563),
+                ("dolor".to_string(), 1.0),
+                ("sit".to_string(), 1.0),
+                ("amet".to_string(), 1.0),
+                ("consectetur".to_string(), 1.3219280948873622),
+                ("adipiscing".to_string(), 1.3219280948873622),
             ],
             vec![
-                ("feugiat".to_string(), 3.321928094887362),
+                ("feugiat".to_string(), 3.9068905956085187),
                 ("massa".to_string(), 0.0),
                 ("maximus".to_string(), 1.5849625007211563),
-                ("ultrices".to_string(), 2.0),
+                ("ultrices".to_string(), 2.584962500721156),
                 ("ipsum".to_string(), 0.0),
-                ("nec".to_string(), 1.5849625007211563),
+                ("nec".to_string(), 2.0),
             ],
         ]),
         model.surprisal(&vec![
@@ -482,14 +557,79 @@ fn test_bigram_surprisal() {
     );
     assert_eq!(
         Some(vec![vec![
-            ("lorem".to_string(), 3.321928094887362),
-            ("ipsum".to_string(), 0.0),
-            ("dolor".to_string(), 1.5849625007211563),
-            ("sit".to_string(), 1.5849625007211563),
-            ("amet".to_string(), 1.5849625007211563),
-            ("foo".to_string(), 2.321928094887362),
-            ("bar".to_string(), 8.388017285345136),
+            ("lorem".to_string(), 2.9068905956085187),
+            ("ipsum".to_string(), 0.5849625007211563),
+            ("dolor".to_string(), 1.0),
+            ("sit".to_string(), 1.0),
+            ("amet".to_string(), 1.0),
+            ("foo".to_string(), 2.584962500721156),
+            ("bar".to_string(), 8.643856189774725),
         ]]),
         model.surprisal(&[["lorem", "ipsum", "dolor", "sit", "amet", "foo", "bar"]])
+    );
+}
+
+
+#[test]
+fn test_trigram_surprisal() {
+    let mut trigram_surprisal = NGramFrequencySurprisal::new(3);
+    assert_eq!(
+        None,
+        trigram_surprisal.surprisal(&[[
+            "lorem",
+            "ipsum",
+            "dolor",
+            "sit",
+            "amet",
+            "consectetur",
+            "adipiscing",
+        ]])
+    );
+    let texts = get_texts();
+    trigram_surprisal.fit(&texts);
+    assert_eq!(
+        Some(vec![
+            vec![
+                ("lorem".to_string(), 2.9068905956085187),
+                ("ipsum".to_string(), 0.0),
+                ("dolor".to_string(), 0.0),
+                ("sit".to_string(), 0.0),
+                ("amet".to_string(), 0.0),
+                ("consectetur".to_string(), 0.0),
+                ("adipiscing".to_string(), 0.0),
+            ],
+            vec![
+                ("feugiat".to_string(), 3.9068905956085187),
+                ("massa".to_string(), 0.0),
+                ("maximus".to_string(), 0.0),
+                ("ultrices".to_string(), 0.0),
+                ("ipsum".to_string(), 0.0),
+                ("nec".to_string(), 0.0),
+            ],
+        ]),
+        trigram_surprisal.surprisal(&vec![
+            vec![
+                "lorem",
+                "ipsum",
+                "dolor",
+                "sit",
+                "amet",
+                "consectetur",
+                "adipiscing",
+            ],
+            vec!["feugiat", "massa", "maximus", "ultrices", "ipsum", "nec",],
+        ])
+    );
+    assert_eq!(
+        Some(vec![vec![
+            ("lorem".to_string(), 2.9068905956085187),
+            ("ipsum".to_string(), 0.0),
+            ("dolor".to_string(), 0.0),
+            ("sit".to_string(), 0.0),
+            ("amet".to_string(), 0.0),
+            ("foo".to_string(), 1.5849625007211563),
+            ("bar".to_string(), 8.643856189774725),
+        ]]),
+        trigram_surprisal.surprisal(&[["lorem", "ipsum", "dolor", "sit", "amet", "foo", "bar"]])
     );
 }
