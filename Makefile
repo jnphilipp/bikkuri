@@ -60,6 +60,7 @@ release: test
 
 venv:
 	$(Q)python -m venv venv
+	$(Q)venv/bin/python -m pip install --upgrade pip wheel setuptools setuptools-rust
 
 changelog.latest.md:
 	$(Q)( \
