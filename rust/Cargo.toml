@@ -18,3 +18,9 @@ include = [
 name = "bikkuri"
 path = "src/lib.rs"
 crate-type = ["lib"]
+
+[dependencies]
+json = "0.12"
+
+[dev-dependencies]
+tempdir = "0.3"

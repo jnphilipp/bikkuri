@@ -19,9 +19,15 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-use std::collections::{HashMap, VecDeque};
+use crate::errors::LoadError;
 
-/// Calculates the surprisal, using Shannon Information, based the n-gram frequency.
+use std::collections::{HashMap, VecDeque};
+use std::fs::File;
+use std::io;
+use std::io::prelude::*;
+use std::path::Path;
+
+/// Calculates the surprisal of words, using Shannon Information, based on n-gram frequency.
 #[derive(Clone, Debug)]
 pub struct NGramFrequencySurprisal {
     pub n: i64,
@@ -30,14 +36,6 @@ pub struct NGramFrequencySurprisal {
 }
 
 impl NGramFrequencySurprisal {
-    pub fn new(n: i64) -> NGramFrequencySurprisal {
-        NGramFrequencySurprisal {
-            n,
-            counts: HashMap::new(),
-            suffix_counts: HashMap::new(),
-        }
-    }
-
     fn get_prefix<T, S: AsRef<str>>(&self, text: &T, suffix: i64) -> Option<String>
     where
         for<'a> &'a T: IntoIterator<Item = &'a S>,
@@ -62,6 +60,62 @@ impl NGramFrequencySurprisal {
         Some(parts.into_iter().collect::<Vec<_>>().join("_"))
     }
 
+    pub fn new(n: i64) -> NGramFrequencySurprisal {
+        NGramFrequencySurprisal {
+            n,
+            counts: HashMap::new(),
+            suffix_counts: HashMap::new(),
+        }
+    }
+
+    /// Load from a JSON-file.
+    pub fn load(path: &Path) -> Result<NGramFrequencySurprisal, LoadError> {
+        let mut s = String::new();
+        {
+            let mut file = File::open(path)?;
+            file.read_to_string(&mut s)?;
+        }
+        let data = json::parse(&s)?;
+
+        if data.is_object() {
+            if !data.has_key("n") {
+                return Err(LoadError::MissingKeyError("n".to_string()));
+            } else if !data.has_key("counts") {
+                return Err(LoadError::MissingKeyError("counts".to_string()));
+            } else if !data.has_key("suffix_counts") {
+                return Err(LoadError::MissingKeyError("suffix_counts".to_string()));
+            }
+        } else {
+            return Err(LoadError::ParseError);
+        }
+
+        let n: i64 = data["n"].as_i64().unwrap();
+        let mut counts: HashMap<String, i64> = HashMap::new();
+        for (k, v) in data["counts"].entries() {
+            counts.insert(k.to_string(), v.as_i64().unwrap());
+        }
+
+        let mut suffix_counts: HashMap<String, HashMap<String, i64>> = HashMap::new();
+        for (k, v) in data["suffix_counts"].entries() {
+            if n == 1 {
+                return Err(LoadError::ParseError);
+            }
+            let mut scounts: HashMap<String, i64> = HashMap::new();
+            for (k2, v2) in v.entries() {
+                scounts.insert(k2.to_string(), v2.as_i64().unwrap());
+            }
+            suffix_counts.insert(k.to_string(), scounts);
+        }
+
+        Ok(NGramFrequencySurprisal {
+            n,
+            counts,
+            suffix_counts,
+        })
+    }
+
+    /// Calculate the underlying frequencies for the later surprisal calculations.
+    /// Multiple calls will update the frequencies.
     pub fn fit<T, U, S: AsRef<str>>(&mut self, texts: &T)
     where
         for<'a> &'a T: IntoIterator<Item = &'a U>,
@@ -89,6 +143,36 @@ impl NGramFrequencySurprisal {
         }
     }
 
+    /// Save to a JSON-file.
+    pub fn save(&self, path: &Path) -> io::Result<()> {
+        let mut f = File::create(path)?;
+        let mut data = json::JsonValue::new_object();
+        data["n"] = self.n.into();
+        data["counts"] = json::JsonValue::new_object();
+        data["suffix_counts"] = json::JsonValue::new_object();
+
+        let mut keys: Vec<String> = self.counts.clone().into_keys().collect();
+        keys.sort_unstable();
+        for key in keys {
+            data["counts"][key] = self.counts[&key].into();
+        }
+
+        keys = self.suffix_counts.clone().into_keys().collect();
+        keys.sort_unstable();
+        for key in keys {
+            data["suffix_counts"][key.clone()] = json::JsonValue::new_object();
+            let mut skeys: Vec<String> = self.suffix_counts[&key].clone().into_keys().collect();
+            skeys.sort_unstable();
+            for skey in skeys {
+                data["suffix_counts"][key.clone()][skey] = self.suffix_counts[&key][&skey].into();
+            }
+        }
+
+        f.write_all(json::stringify(data).as_bytes())?;
+        Ok(())
+    }
+
+    /// Calculate the surprisal for each word in each given text.
     pub fn surprisal<T, U, S: AsRef<str>>(&self, texts: &T) -> Option<Vec<Vec<(String, f64)>>>
     where
         for<'a> &'a T: IntoIterator<Item = &'a U>,
@@ -139,5 +223,13 @@ impl NGramFrequencySurprisal {
         }
 
         Some(surprisal_texts)
+    }
+}
+
+impl PartialEq for NGramFrequencySurprisal {
+    fn eq(&self, other: &Self) -> bool {
+        self.n == other.n
+            && self.counts == other.counts
+            && self.suffix_counts == other.suffix_counts
     }
 }

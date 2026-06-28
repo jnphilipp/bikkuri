@@ -19,6 +19,10 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+extern crate json;
 
+pub use errors::LoadError;
 pub use ngram::NGramFrequencySurprisal;
+
+pub mod errors;
 pub mod ngram;
