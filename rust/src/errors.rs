@@ -19,50 +19,60 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-use json::Error as JsonError;
-use std::error::Error;
+use regex;
+use std::error;
 use std::fmt;
-use std::io::Error as IoError;
+use std::io;
+use std::num::ParseIntError;
 
-/// LoadError
+/// Error
 #[derive(Debug)]
-pub enum LoadError {
-    IOError(IoError),
-    JsonError(JsonError),
-    MissingKeyError(String),
-    ParseError,
+pub enum Error {
+    Io(io::Error),
+    MissingKey(String),
+    ParseInt(ParseIntError),
+    Regex(regex::Error),
+    UnrecognisedFormat,
 }
 
-impl fmt::Display for LoadError {
+impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            LoadError::IOError(e) => e.fmt(f),
-            LoadError::JsonError(e) => e.fmt(f),
-            LoadError::MissingKeyError(key) => write!(f, "Missing value for {key}."),
-            LoadError::ParseError => write!(f, "Cannot parse file."),
+            Error::Io(e) => e.fmt(f),
+            Error::MissingKey(key) => write!(f, "Missing value for {key}."),
+            Error::ParseInt(e) => e.fmt(f),
+            Error::Regex(e) => e.fmt(f),
+            Error::UnrecognisedFormat => write!(f, "Unrecognised format."),
         }
     }
 }
 
-impl Error for LoadError {
-    fn source(&self) -> Option<&(dyn Error + 'static)> {
+impl error::Error for Error {
+    fn source(&self) -> Option<&(dyn error::Error + 'static)> {
         match *self {
-            LoadError::IOError(ref e) => Some(e),
-            LoadError::JsonError(ref e) => Some(e),
-            LoadError::MissingKeyError(_) => None,
-            LoadError::ParseError => None,
+            Error::Io(ref e) => Some(e),
+            Error::MissingKey(_) => None,
+            Error::ParseInt(ref e) => Some(e),
+            Error::Regex(ref e) => Some(e),
+            Error::UnrecognisedFormat => None,
         }
     }
 }
 
-impl From<IoError> for LoadError {
-    fn from(err: IoError) -> LoadError {
-        LoadError::IOError(err)
+impl From<regex::Error> for Error {
+    fn from(err: regex::Error) -> Error {
+        Error::Regex(err)
     }
 }
 
-impl From<JsonError> for LoadError {
-    fn from(err: JsonError) -> LoadError {
-        LoadError::JsonError(err)
+impl From<ParseIntError> for Error {
+    fn from(err: ParseIntError) -> Error {
+        Error::ParseInt(err)
+    }
+}
+
+impl From<io::Error> for Error {
+    fn from(err: io::Error) -> Error {
+        Error::Io(err)
     }
 }

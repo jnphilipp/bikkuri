@@ -24,7 +24,7 @@ extern crate pyo3;
 #[macro_use]
 extern crate pyo3_built;
 
-use bikkurirs::errors::LoadError;
+use bikkurirs::errors::Error;
 use bikkurirs::ngram::NGramFrequencySurprisal;
 use pyo3::exceptions;
 use pyo3::prelude::*;
@@ -58,28 +58,25 @@ fn register_submodules(
     Ok(())
 }
 
-/// LoadError
-#[pyclass(name = "LoadError")]
-struct LoadErrorPy(LoadError);
+/// Error
+#[pyclass(name = "Error")]
+struct ErrorPy(Error);
 
-impl From<LoadError> for LoadErrorPy {
-    fn from(err: LoadError) -> Self {
+impl From<Error> for ErrorPy {
+    fn from(err: Error) -> Self {
         Self(err)
     }
 }
 
-impl std::convert::From<LoadErrorPy> for PyErr {
-    fn from(err: LoadErrorPy) -> Self {
+impl std::convert::From<ErrorPy> for PyErr {
+    fn from(err: ErrorPy) -> Self {
         match err {
-            LoadErrorPy(LoadError::IOError(ref e)) => exceptions::PyOSError::new_err(e.to_string()),
-            LoadErrorPy(LoadError::JsonError(ref e)) => {
-                exceptions::PyTypeError::new_err(e.to_string())
-            }
-            LoadErrorPy(LoadError::MissingKeyError(ref e)) => {
-                exceptions::PyKeyError::new_err(e.to_string())
-            }
-            LoadErrorPy(LoadError::ParseError) => {
-                exceptions::PyException::new_err("Cannot parse file.".to_string())
+            ErrorPy(Error::Io(ref e)) => exceptions::PyOSError::new_err(e.to_string()),
+            ErrorPy(Error::MissingKey(ref e)) => exceptions::PyKeyError::new_err(e.to_string()),
+            ErrorPy(Error::ParseInt(ref e)) => exceptions::PyValueError::new_err(e.to_string()),
+            ErrorPy(Error::Regex(ref e)) => exceptions::PySyntaxError::new_err(e.to_string()),
+            ErrorPy(Error::UnrecognisedFormat) => {
+                exceptions::PyValueError::new_err("Unrecognised format.".to_string())
             }
         }
     }
@@ -101,10 +98,23 @@ impl NGramFrequencySurprisalPy {
         }
     }
 
-    /// Load from a JSON-file.
+    pub fn __str__(&self) -> String {
+        self.model.to_string()
+    }
+
+    /// Create from a JSON string.
+    #[staticmethod]
+    #[pyo3(signature = (s: "str") -> "NGramFrequencySurprisal")]
+    fn from_str(s: String) -> Result<Self, ErrorPy> {
+        Ok(NGramFrequencySurprisalPy {
+            model: s.parse::<NGramFrequencySurprisal>()?,
+        })
+    }
+
+    /// Load from a JSON file.
     #[staticmethod]
     #[pyo3(signature = (path: "Path") -> "NGramFrequencySurprisal")]
-    fn load(path: PathBuf) -> Result<Self, LoadErrorPy> {
+    fn load(path: PathBuf) -> Result<Self, ErrorPy> {
         Ok(NGramFrequencySurprisalPy {
             model: NGramFrequencySurprisal::load(path.as_path())?,
         })
@@ -200,7 +210,7 @@ pub mod bikkuri {
 #[pyo3::pymodule(submodule, name = "errors")]
 pub mod errors {
     #[pymodule_export]
-    use super::LoadErrorPy;
+    use super::ErrorPy;
 }
 
 #[pyo3::pymodule(submodule, name = "ngram")]

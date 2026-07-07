@@ -19,13 +19,17 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-use crate::errors::LoadError;
+use crate::errors::Error;
 
+use regex::Regex;
 use std::collections::{HashMap, VecDeque};
+use std::fmt;
 use std::fs::File;
 use std::io;
+use std::io::Write;
 use std::io::prelude::*;
 use std::path::Path;
+use std::str::FromStr;
 
 /// Calculates the surprisal of words, using Shannon Information, based on n-gram frequency.
 #[derive(Clone, Debug)]
@@ -69,49 +73,14 @@ impl NGramFrequencySurprisal {
     }
 
     /// Load from a JSON-file.
-    pub fn load(path: &Path) -> Result<NGramFrequencySurprisal, LoadError> {
+    pub fn load(path: &Path) -> Result<NGramFrequencySurprisal, Error> {
         let mut s = String::new();
         {
             let mut file = File::open(path)?;
             file.read_to_string(&mut s)?;
         }
-        let data = json::parse(&s)?;
 
-        if data.is_object() {
-            if !data.has_key("n") {
-                return Err(LoadError::MissingKeyError("n".to_string()));
-            } else if !data.has_key("counts") {
-                return Err(LoadError::MissingKeyError("counts".to_string()));
-            } else if !data.has_key("suffix_counts") {
-                return Err(LoadError::MissingKeyError("suffix_counts".to_string()));
-            }
-        } else {
-            return Err(LoadError::ParseError);
-        }
-
-        let n: i64 = data["n"].as_i64().unwrap();
-        let mut counts: HashMap<String, i64> = HashMap::new();
-        for (k, v) in data["counts"].entries() {
-            counts.insert(k.to_string(), v.as_i64().unwrap());
-        }
-
-        let mut suffix_counts: HashMap<String, HashMap<String, i64>> = HashMap::new();
-        for (k, v) in data["suffix_counts"].entries() {
-            if n == 1 {
-                return Err(LoadError::ParseError);
-            }
-            let mut scounts: HashMap<String, i64> = HashMap::new();
-            for (k2, v2) in v.entries() {
-                scounts.insert(k2.to_string(), v2.as_i64().unwrap());
-            }
-            suffix_counts.insert(k.to_string(), scounts);
-        }
-
-        Ok(NGramFrequencySurprisal {
-            n,
-            counts,
-            suffix_counts,
-        })
+        Ok(s.parse::<NGramFrequencySurprisal>()?)
     }
 
     /// Calculate the underlying frequencies for the later surprisal calculations.
@@ -143,33 +112,9 @@ impl NGramFrequencySurprisal {
         }
     }
 
-    /// Save to a JSON-file.
+    /// Save to a file.
     pub fn save(&self, path: &Path) -> io::Result<()> {
-        let mut f = File::create(path)?;
-        let mut data = json::JsonValue::new_object();
-        data["n"] = self.n.into();
-        data["counts"] = json::JsonValue::new_object();
-        data["suffix_counts"] = json::JsonValue::new_object();
-
-        let mut keys: Vec<String> = self.counts.clone().into_keys().collect();
-        keys.sort_unstable();
-        for key in keys {
-            data["counts"][key] = self.counts[&key].into();
-        }
-
-        keys = self.suffix_counts.clone().into_keys().collect();
-        keys.sort_unstable();
-        for key in keys {
-            data["suffix_counts"][key.clone()] = json::JsonValue::new_object();
-            let mut skeys: Vec<String> = self.suffix_counts[&key].clone().into_keys().collect();
-            skeys.sort_unstable();
-            for skey in skeys {
-                data["suffix_counts"][key.clone()][skey] = self.suffix_counts[&key][&skey].into();
-            }
-        }
-
-        f.write_all(json::stringify(data).as_bytes())?;
-        Ok(())
+        write!(File::create(path)?, "{}", self)
     }
 
     /// Calculate the surprisal for each word in each given text.
@@ -223,6 +168,127 @@ impl NGramFrequencySurprisal {
         }
 
         Some(surprisal_texts)
+    }
+}
+
+impl fmt::Display for NGramFrequencySurprisal {
+    /// Display a n-gram frequency surprisal as a JSON str.
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{{\"n\":{},", self.n)?;
+
+        write!(f, "\"counts\":{{")?;
+        let mut keys: Vec<String> = self.counts.clone().into_keys().collect();
+        keys.sort_unstable();
+        let mut iter = keys.iter().peekable();
+        while let Some(key) = iter.next() {
+            write!(f, "\"{}\":{}", key, self.counts[key])?;
+            if !iter.peek().is_none() {
+                write!(f, ",")?;
+            }
+        }
+
+        write!(f, "}},\"suffix_counts\":{{")?;
+        keys = self.suffix_counts.clone().into_keys().collect();
+        keys.sort_unstable();
+        let mut iter = keys.iter().peekable();
+        while let Some(key) = iter.next() {
+            write!(f, "\"{}\":{{", key)?;
+
+            let mut skeys: Vec<String> = self.suffix_counts[key].clone().into_keys().collect();
+            skeys.sort_unstable();
+            let mut siter = skeys.iter().peekable();
+            while let Some(skey) = siter.next() {
+                write!(f, "\"{}\":{}", skey, self.suffix_counts[key][skey])?;
+                if !siter.peek().is_none() {
+                    write!(f, ",")?;
+                }
+            }
+
+            write!(f, "}}")?;
+            if !iter.peek().is_none() {
+                write!(f, ",")?;
+            }
+        }
+
+        write!(f, "}}}}")?;
+        Ok(())
+    }
+}
+
+impl FromStr for NGramFrequencySurprisal {
+    type Err = Error;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let re = Regex::new(
+            r#"^\{"n":(?<n>\d+),\"counts\":(?<counts>\{.*\}),\"suffix_counts\":(?<suffix_counts>\{.*\})\}\s*$"#,
+        )?;
+
+        match re.captures(s) {
+            Some(caps) => {
+                let n: i64 = caps["n"].parse()?;
+                let mut counts: HashMap<String, i64> = HashMap::new();
+                let mut suffix_counts: HashMap<String, HashMap<String, i64>> = HashMap::new();
+
+                let re = Regex::new(r#""(?<word>[^"]+)":(?<count>\d+)"#)?;
+                for (_, [word, count]) in re.captures_iter(&caps["counts"]).map(|c| c.extract()) {
+                    counts.insert(word.to_string(), count.parse::<i64>()?);
+                }
+
+                let re = Regex::new(r#""(?<word>[^"]+)":\{(?<suffixes>[^\}]*)\}"#)?;
+                for (_, [word, suffixes]) in re
+                    .captures_iter(&caps["suffix_counts"])
+                    .map(|c| c.extract())
+                {
+                    if !counts.contains_key(word) {
+                        return Err(Error::UnrecognisedFormat);
+                    }
+
+                    let mut scounts: HashMap<String, i64> = HashMap::new();
+                    let re = Regex::new(r#""(?<suffix>[^"]+)":(?<count>\d+)"#)?;
+                    for (_, [suffix, count]) in re.captures_iter(&suffixes).map(|c| c.extract()) {
+                        scounts.insert(suffix.to_string(), count.parse::<i64>()?);
+                    }
+                    suffix_counts.insert(word.to_string(), scounts);
+                }
+
+                if n > 1
+                    && (counts.len() != suffix_counts.len()
+                        || !counts.keys().all(|k| suffix_counts.contains_key(k)))
+                {
+                    return Err(Error::UnrecognisedFormat);
+                } else if n == 1 && suffix_counts.len() > 0 {
+                    return Err(Error::UnrecognisedFormat);
+                }
+
+                Ok(NGramFrequencySurprisal {
+                    n,
+                    counts,
+                    suffix_counts,
+                })
+            }
+            None => {
+                let re = Regex::new(r#"^\{"#)?;
+                if re.is_match(s) {
+                    let re = Regex::new(r#"^\{"n":"#)?;
+                    if re.is_match(s) {
+                        let re = Regex::new(r#"^\{"n":\d+,"counts":"#)?;
+                        if re.is_match(s) {
+                            let re = Regex::new(r#"^\{"n":\d+,"counts":.+?,"suffix_counts":"#)?;
+                            if re.is_match(s) {
+                                Err(Error::UnrecognisedFormat)
+                            } else {
+                                Err(Error::MissingKey("suffix_counts".to_string()))
+                            }
+                        } else {
+                            Err(Error::MissingKey("counts".to_string()))
+                        }
+                    } else {
+                        Err(Error::MissingKey("n".to_string()))
+                    }
+                } else {
+                    Err(Error::UnrecognisedFormat)
+                }
+            }
+        }
     }
 }
 

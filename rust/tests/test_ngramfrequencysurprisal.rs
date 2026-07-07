@@ -22,9 +22,9 @@
 extern crate bikkuri;
 extern crate tempdir;
 
-use bikkuri::errors::LoadError;
+use bikkuri::errors::Error;
 use bikkuri::ngram::NGramFrequencySurprisal;
-use std::error::Error;
+use std::error;
 use std::fs::File;
 use std::io::prelude::*;
 use tempdir::TempDir;
@@ -449,7 +449,7 @@ fn get_texts() -> Vec<Vec<&'static str>> {
 }
 
 #[test]
-fn test_unigram_frequency_surprisal() -> Result<(), Box<dyn Error>> {
+fn test_unigram_frequency_surprisal() -> Result<(), Box<dyn error::Error>> {
     let mut model = NGramFrequencySurprisal::new(1);
     assert_eq!(
         None,
@@ -529,7 +529,7 @@ fn test_unigram_frequency_surprisal() -> Result<(), Box<dyn Error>> {
 }
 
 #[test]
-fn test_bigram_surprisal() -> Result<(), Box<dyn Error>> {
+fn test_bigram_surprisal() -> Result<(), Box<dyn error::Error>> {
     let mut model = NGramFrequencySurprisal::new(2);
     assert_eq!(
         None,
@@ -610,7 +610,7 @@ fn test_bigram_surprisal() -> Result<(), Box<dyn Error>> {
 }
 
 #[test]
-fn test_trigram_frequency_surprisal() -> Result<(), Box<dyn Error>> {
+fn test_trigram_frequency_surprisal() -> Result<(), Box<dyn error::Error>> {
     let mut model = NGramFrequencySurprisal::new(3);
     assert_eq!(
         None,
@@ -691,41 +691,36 @@ fn test_trigram_frequency_surprisal() -> Result<(), Box<dyn Error>> {
 }
 
 #[test]
-fn test_ngramsurprisal_load() -> Result<(), Box<dyn Error>> {
+fn test_save_and_load() -> Result<(), Box<dyn error::Error>> {
     let tmp_dir = TempDir::new("ngram_test")?;
     let path = tmp_dir.path().join("ngram_surprisal.json");
 
     let mut f = File::create(&path)?;
     f.write_all(b"[]")?;
-
     let r = NGramFrequencySurprisal::load(&path);
     assert!(r.is_err());
-    assert!(matches!(r, Err(LoadError::ParseError)));
+    assert!(matches!(r, Err(Error::UnrecognisedFormat)));
 
     let mut f = File::create(&path)?;
     f.write_all(b"{}")?;
-
     let r = NGramFrequencySurprisal::load(&path);
     assert!(r.is_err());
-    assert!(matches!(r, Err(LoadError::MissingKeyError(_))));
+    assert!(matches!(r, Err(Error::MissingKey(_))));
 
     let mut f = File::create(&path)?;
     f.write_all(b"{\"n\":2}")?;
-
     let r = NGramFrequencySurprisal::load(&path);
     assert!(r.is_err());
-    assert!(matches!(r, Err(LoadError::MissingKeyError(_))));
+    assert!(matches!(r, Err(Error::MissingKey(_))));
 
     let mut f = File::create(&path)?;
     f.write_all(b"{\"n\":2,\"counts\":{}}")?;
-
     let r = NGramFrequencySurprisal::load(&path);
     assert!(r.is_err());
-    assert!(matches!(r, Err(LoadError::MissingKeyError(_))));
+    assert!(matches!(r, Err(Error::MissingKey(_))));
 
     let mut f = File::create(&path)?;
     f.write_all(b"{\"n\":2,\"counts\":{},\"suffix_counts\":{}}")?;
-
     let r = NGramFrequencySurprisal::load(&path);
     assert!(r.is_ok());
     assert_eq!(NGramFrequencySurprisal::new(2), r.unwrap());
@@ -734,10 +729,85 @@ fn test_ngramsurprisal_load() -> Result<(), Box<dyn Error>> {
     f.write_all(
         b"{\"n\":1,\"counts\":{\"foo\":1,\"bar\":2},\"suffix_counts\":{\"bar\":{\"foo\":2}}}",
     )?;
-
     let r = NGramFrequencySurprisal::load(&path);
     assert!(r.is_err());
-    assert!(matches!(r, Err(LoadError::ParseError)));
+    assert!(matches!(r, Err(Error::UnrecognisedFormat)));
+
+    let mut f = File::create(&path)?;
+    f.write_all(
+        b"{\"n\":2,\"counts\":{\"foo\":1,\"bar\":2},\"suffix_counts\":{\"bar\":{\"foo\":2},\"foo\":{\"_\":1}}}"
+    )?;
+    let r = NGramFrequencySurprisal::load(&path);
+    assert!(r.is_ok());
+    Ok(())
+}
+
+#[test]
+fn test_from_into_str() -> Result<(), Box<dyn error::Error>> {
+    assert_eq!(
+        NGramFrequencySurprisal::new(1).to_string(),
+        "{\"n\":1,\"counts\":{},\"suffix_counts\":{}}".to_string(),
+    );
+
+    let mut model = NGramFrequencySurprisal::new(1);
+    model.fit(&vec![vec!["foo", "bar"], vec!["foo"]]);
+    assert_eq!(
+        model.to_string(),
+        "{\"n\":1,\"counts\":{\"bar\":1,\"foo\":2},\"suffix_counts\":{}}".to_string(),
+    );
+
+    let mut model = NGramFrequencySurprisal::new(2);
+    model.fit(&vec![vec!["foo", "bar"], vec!["foo"], vec!["foo", "foo"]]);
+    assert_eq!(
+        "{\"n\":2,\"counts\":{\"bar\":1,\"foo\":4},\"suffix_counts\":{\"bar\":{\"foo\":1},\"foo\":{\"_\":3,\"foo\":1}}}".to_string(),
+        model.to_string(),
+    );
+
+    let p = "".parse::<NGramFrequencySurprisal>();
+    assert!(p.is_err());
+    assert!(matches!(p, Err(Error::UnrecognisedFormat)));
+
+    let p = "[]".parse::<NGramFrequencySurprisal>();
+    assert!(p.is_err());
+    assert!(p.is_err());
+    assert!(matches!(p, Err(Error::UnrecognisedFormat)));
+
+    let p = "{}".parse::<NGramFrequencySurprisal>();
+    assert!(p.is_err());
+    assert!(matches!(p, Err(Error::MissingKey(_))));
+
+    let p = "{\"n\":2}".parse::<NGramFrequencySurprisal>();
+    assert!(p.is_err());
+    assert!(matches!(p, Err(Error::MissingKey(_))));
+
+    let p = "{\"n\":2,\"counts\":[]}".parse::<NGramFrequencySurprisal>();
+    assert!(p.is_err());
+    assert!(matches!(p, Err(Error::MissingKey(_))));
+
+    let p = "{\"n\":2,\"counts\":{}}".parse::<NGramFrequencySurprisal>();
+    assert!(p.is_err());
+    assert!(matches!(p, Err(Error::MissingKey(_))));
+
+    let p = "{\"n\":2,\"counts\":[],\"suffix_counts\":[]}".parse::<NGramFrequencySurprisal>();
+    assert!(p.is_err());
+    assert!(matches!(p, Err(Error::UnrecognisedFormat)));
+
+    let p = "{\"n\":2,\"counts\":{},\"suffix_counts\":{}}".parse::<NGramFrequencySurprisal>();
+    assert!(p.is_ok());
+    assert_eq!(p.unwrap(), NGramFrequencySurprisal::new(2));
+
+    let p = "{\"n\":1,\"counts\":{\"foo\":1,\"bar\":2},\"suffix_counts\":{\"bar\":{\"foo\":2}}}"
+        .parse::<NGramFrequencySurprisal>();
+    assert!(p.is_err());
+    assert!(matches!(p, Err(Error::UnrecognisedFormat)));
+
+    let p = "{\"n\":2,\"counts\":{\"foo\":1,\"bar\":2},\"suffix_counts\":{\"bar\":{\"foo\":2}}}"
+        .parse::<NGramFrequencySurprisal>();
+    assert!(p.is_err());
+    assert!(matches!(p, Err(Error::UnrecognisedFormat)));
+
+    let p = "{\"n\":2,\"counts\":{\"foo\":1,\"bar\":2},\"suffix_counts\":{\"bar\":{\"foo\":2},\"foo\":{\"_\":1}}}".parse::<NGramFrequencySurprisal>();
+    assert!(p.is_ok());
 
     Ok(())
 }

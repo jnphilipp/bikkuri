@@ -1066,13 +1066,71 @@ class NGramFrquencySurprisalTests(unittest.TestCase):
             model2 = NGramFrequencySurprisal.load(path)
             self.assertEqual(model, model2)
 
+    def test_ngramfrequencysurprisal_from_into_str(self) -> None:
+        """Test from_str and __str__."""
+        self.assertEqual(
+            str(NGramFrequencySurprisal(1)),
+            '{"n":1,"counts":{},"suffix_counts":{}}',
+        )
+
+        model = NGramFrequencySurprisal(1)
+        model.fit([["foo", "bar"], ["foo"]])
+        self.assertEqual(
+            str(model),
+            '{"n":1,"counts":{"bar":1,"foo":2},"suffix_counts":{}}',
+        )
+
+        model = NGramFrequencySurprisal(2)
+        model.fit([["foo", "bar"], ["foo"], ["foo", "foo"]])
+        self.assertEqual(
+            str(model),
+            '{"n":2,"counts":{"bar":1,"foo":4},"suffix_counts":{"bar":{"foo":1},"foo":'
+            + '{"_":3,"foo":1}}}',
+        )
+
+        with self.assertRaisesRegex(ValueError, r"Unrecognised format."):
+            NGramFrequencySurprisal.from_str("[]")
+
+        with self.assertRaisesRegex(KeyError, r"n"):
+            NGramFrequencySurprisal.from_str("{}")
+
+        with self.assertRaisesRegex(KeyError, r"counts"):
+            NGramFrequencySurprisal.from_str('{"n":1,}')
+
+        with self.assertRaisesRegex(KeyError, r"suffix_counts"):
+            NGramFrequencySurprisal.from_str('{"n":1,"counts":{}}')
+
+        with self.assertRaisesRegex(ValueError, r"Unrecognised format."):
+            NGramFrequencySurprisal.from_str('{"n":1,"counts":[],"suffix_counts":{}}')
+
+        self.assertEqual(
+            NGramFrequencySurprisal.from_str('{"n":1,"counts":{},"suffix_counts":{}}'),
+            NGramFrequencySurprisal(1),
+        )
+
+        with self.assertRaisesRegex(ValueError, r"Unrecognised format."):
+            NGramFrequencySurprisal.from_str(
+                '{"n":1,"counts":{"bar":1,"foo":2},"suffix_counts":{"foo":{"bar":1}}}'
+            )
+
+        self.assertEqual(
+            str(
+                NGramFrequencySurprisal.from_str(
+                    '{"n":2,"counts":{"bar":1,"foo":1},"suffix_counts":{"bar":{"foo":1}'
+                    + ',"foo":{}}}'
+                )
+            ),
+            '{"n":2,"counts":{"bar":1,"foo":1},"suffix_counts":{"bar":{"foo":1},"foo":'
+            + "{}}}",
+        )
+
     def test_ngramfrequencysurprisal_load_save(self) -> None:
         """Test loading and saving."""
         with TemporaryDirectory() as tmp_dir:
             with open(Path(tmp_dir) / "ngramsurprisal.json", "w", encoding="utf8") as f:
                 f.write("[]\n")
 
-            with self.assertRaisesRegex(Exception, r"Cannot parse file."):
+            with self.assertRaisesRegex(ValueError, r"Unrecognised format."):
                 NGramFrequencySurprisal.load(Path(tmp_dir) / "ngramsurprisal.json")
 
             with open(Path(tmp_dir) / "ngramsurprisal.json", "w", encoding="utf8") as f:
@@ -1107,7 +1165,7 @@ class NGramFrquencySurprisalTests(unittest.TestCase):
                     + "}}}\n"
                 )
 
-            with self.assertRaisesRegex(Exception, r"Cannot parse file."):
+            with self.assertRaisesRegex(ValueError, r"Unrecognised format."):
                 ngramsurprisal = NGramFrequencySurprisal.load(
                     Path(tmp_dir) / "ngramsurprisal.json"
                 )

@@ -20,7 +20,7 @@ path = "src/lib.rs"
 crate-type = ["lib"]
 
 [dependencies]
-json = "0.12"
+regex = "1.12.4"
 
 [dev-dependencies]
 tempdir = "0.3"
