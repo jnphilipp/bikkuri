@@ -4,7 +4,7 @@ Calculate the surprisal of words in texts.
 
 ![Tests](https://github.com/jnphilipp/bikkuri/actions/workflows/tests.yml/badge.svg)
 [![PyPI Version](https://img.shields.io/pypi/v/bikkuri.svg?logo=pypi&logoColor=white)](https://pypi.org/project/bikkuri/)
-[![crates.io Version](https://img.shields.io/crates/v/bikkuri.svg?logo=rust&logoColor=white)](https://crates.io/project/bikkuri/)
+[![crates.io Version](https://img.shields.io/crates/v/bikkuri.svg?logo=rust&logoColor=white)](https://crates.io/crates/bikkuri)
 
 ## Usage
 
