@@ -57,5 +57,9 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
         run: pip install --upgrade pip wheel setuptools setuptools-rust
+      - name: Build and install extension
+        run: |
+          cd python
+          python -m pip install --no-cache-dir --force-reinstall .
       - name: Run Tests
         run: make test-py
