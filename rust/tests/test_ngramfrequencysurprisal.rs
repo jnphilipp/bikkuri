@@ -464,7 +464,7 @@ fn test_unigram_frequency_surprisal() -> Result<(), Box<dyn error::Error>> {
         ]])
     );
     let texts = get_texts();
-    model.fit(&texts);
+    model.fit(&texts)?;
     assert_eq!(
         Some(vec![
             vec![
@@ -544,7 +544,7 @@ fn test_bigram_surprisal() -> Result<(), Box<dyn error::Error>> {
         ]])
     );
     let texts = get_texts();
-    model.fit(&texts);
+    model.fit(&texts)?;
     assert_eq!(
         Some(vec![
             vec![
@@ -625,7 +625,7 @@ fn test_trigram_frequency_surprisal() -> Result<(), Box<dyn error::Error>> {
         ]])
     );
     let texts = get_texts();
-    model.fit(&texts);
+    model.fit(&texts)?;
     assert_eq!(
         Some(vec![
             vec![
@@ -750,14 +750,14 @@ fn test_from_into_str() -> Result<(), Box<dyn error::Error>> {
     );
 
     let mut model = NGramFrequencySurprisal::new(1);
-    model.fit(&vec![vec!["foo", "bar"], vec!["foo"]]);
+    model.fit(&vec![vec!["foo", "bar"], vec!["foo"]])?;
     assert_eq!(
         model.to_string(),
         "{\"n\":1,\"counts\":{\"bar\":1,\"foo\":2},\"suffix_counts\":{}}".to_string(),
     );
 
     let mut model = NGramFrequencySurprisal::new(2);
-    model.fit(&vec![vec!["foo", "bar"], vec!["foo"], vec!["foo", "foo"]]);
+    model.fit(&vec![vec!["foo", "bar"], vec!["foo"], vec!["foo", "foo"]])?;
     assert_eq!(
         "{\"n\":2,\"counts\":{\"bar\":1,\"foo\":4},\"suffix_counts\":{\"bar\":{\"foo\":1},\"foo\":{\"_\":3,\"foo\":1}}}".to_string(),
         model.to_string(),

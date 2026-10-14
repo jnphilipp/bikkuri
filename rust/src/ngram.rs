@@ -30,6 +30,8 @@ use std::io::Write;
 use std::io::prelude::*;
 use std::path::Path;
 use std::str::FromStr;
+use std::sync::mpsc::{self, SendError};
+use std::thread;
 
 /// Calculates the surprisal of words, using Shannon Information, based on n-gram frequency.
 #[derive(Clone, Debug)]
@@ -40,16 +42,16 @@ pub struct NGramFrequencySurprisal {
 }
 
 impl NGramFrequencySurprisal {
-    fn get_prefix<T, S: AsRef<str>>(&self, text: &T, suffix: i64) -> Option<String>
+    fn get_prefix<T, S: AsRef<str>>(text: &T, suffix: i64, n: i64) -> Option<String>
     where
         for<'a> &'a T: IntoIterator<Item = &'a S>,
     {
-        if self.n <= 1 {
+        if n <= 1 {
             return None;
         }
 
         let mut parts: VecDeque<String> = VecDeque::new();
-        for _ in 1..self.n {
+        for _ in 1..n {
             parts.push_back("_".to_string());
         }
         for (i, word) in (0_i64..).zip(text) {
@@ -85,31 +87,76 @@ impl NGramFrequencySurprisal {
 
     /// Calculate the underlying frequencies for the later surprisal calculations.
     /// Multiple calls will update the frequencies.
-    pub fn fit<T, U, S: AsRef<str>>(&mut self, texts: &T)
+    pub fn fit<T, U, S: AsRef<str>>(&mut self, texts: &T) -> Result<(), Error>
     where
+        U: Sync,
+        S: AsRef<str> + Sync,
         for<'a> &'a T: IntoIterator<Item = &'a U>,
         for<'a> &'a U: IntoIterator<Item = &'a S>,
     {
-        for text in texts {
-            for (i, word) in (0_i64..).zip(text) {
-                self.counts
-                    .entry(word.as_ref().to_string())
-                    .and_modify(|counter| *counter += 1)
-                    .or_insert(1);
-                if self.n > 1 {
-                    let prefix: String = self.get_prefix(text, i).unwrap();
-                    if let Some(x) = self.suffix_counts.get_mut(word.as_ref()) {
-                        x.entry(prefix)
-                            .and_modify(|counter| *counter += 1)
-                            .or_insert(1);
-                    } else {
-                        let mut suffix = HashMap::new();
-                        suffix.insert(prefix, 1);
-                        self.suffix_counts.insert(word.as_ref().to_string(), suffix);
+        let n = self.n;
+
+        let texts: Vec<&U> = texts.into_iter().collect();
+
+        thread::scope(|scope| -> Result<(), Error> {
+            let (sender, receiver) =
+                mpsc::channel::<(HashMap<String, i64>, HashMap<String, HashMap<String, i64>>)>();
+
+            let handles: Vec<_> = texts
+                .iter()
+                .map(|text| {
+                    let sender = sender.clone();
+                    scope.spawn(move || -> Result<(), SendError<(HashMap<String, i64>, HashMap<String, HashMap<String, i64>>)>> {
+                        let mut counts: HashMap<String, i64> = HashMap::new();
+                        let mut suffix_counts: HashMap<String, HashMap<String, i64>> = HashMap::new();
+                        for (i, word) in (0_i64..).zip(*text) {
+                            *counts
+                                .entry(word.as_ref().to_string())
+                                .or_insert(0) += 1;
+
+                            if n > 1 {
+                                let prefix: String = Self::get_prefix(*text, i, n).unwrap();
+                                *suffix_counts
+                                    .entry(word.as_ref().to_string())
+                                    .or_default()
+                                    .entry(prefix)
+                                    .or_insert(0) += 1;
+                            }
+                        }
+                        sender.send((counts, suffix_counts))?;
+                        Ok(())
+                    })
+                }).collect();
+
+            drop(sender);
+
+            for (counts, suffix_counts) in receiver {
+                for (word, count) in counts {
+                    *self.counts.entry(word).or_insert(0) += count;
+                }
+
+                for (word, prefixes) in suffix_counts {
+                    let suffix = self.suffix_counts.entry(word).or_default();
+                    for (prefix, count) in prefixes {
+                        *suffix.entry(prefix).or_insert(0) += count;
                     }
                 }
             }
-        }
+
+            for handle in handles {
+                match handle.join() {
+                    Ok(Ok(())) => {}
+                    Ok(Err(_send_error)) => {
+                        return Err(Error::WorkerSend);
+                    }
+                    Err(_panic_payload) => {
+                        return Err(Error::WorkerPanicked);
+                    }
+                }
+            }
+
+            Ok(())
+        })
     }
 
     /// Save to a file.
@@ -148,7 +195,8 @@ impl NGramFrequencySurprisal {
                         p = 1.0 / (total + 1.0);
                     }
                 } else {
-                    let prefix: String = self.get_prefix(text, i).unwrap();
+                    let prefix: String =
+                        NGramFrequencySurprisal::get_prefix(text, i, self.n).unwrap();
                     if self.suffix_counts.contains_key(&w)
                         && self.suffix_counts.get(&w).unwrap().contains_key(&prefix)
                     {

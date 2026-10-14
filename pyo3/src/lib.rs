@@ -72,13 +72,26 @@ impl std::convert::From<ErrorPy> for PyErr {
     fn from(err: ErrorPy) -> Self {
         match err {
             ErrorPy(Error::Io(ref e)) => exceptions::PyOSError::new_err(e.to_string()),
+            ErrorPy(Error::Message(ref e)) => exceptions::PyRuntimeError::new_err(e.to_string()),
             ErrorPy(Error::MissingKey(ref e)) => exceptions::PyKeyError::new_err(e.to_string()),
             ErrorPy(Error::ParseInt(ref e)) => exceptions::PyValueError::new_err(e.to_string()),
             ErrorPy(Error::Regex(ref e)) => exceptions::PySyntaxError::new_err(e.to_string()),
             ErrorPy(Error::UnrecognisedFormat) => {
                 exceptions::PyValueError::new_err("Unrecognised format.".to_string())
             }
+            ErrorPy(Error::WorkerPanicked) => {
+                exceptions::PyRuntimeError::new_err("A worker panicked.".to_string())
+            }
+            ErrorPy(Error::WorkerSend) => exceptions::PyRuntimeError::new_err(
+                "One or more workers failed to send their results.".to_string(),
+            ),
         }
+    }
+}
+
+impl From<PyErr> for ErrorPy {
+    fn from(err: PyErr) -> Self {
+        ErrorPy(Error::Message(err.to_string()))
     }
 }
 
@@ -123,7 +136,7 @@ impl NGramFrequencySurprisalPy {
     /// Calculate the underlying frequencies for the later surprisal calculations.
     /// Multiple calls will update the frequencies.
     #[pyo3(signature = (texts: "Iterable[Iterable[str]]") -> "None")]
-    pub fn fit(&mut self, texts: &Bound<'_, PyAny>) -> PyResult<()> {
+    pub fn fit(&mut self, texts: &Bound<'_, PyAny>) -> Result<(), ErrorPy> {
         let outer = texts.try_iter()?;
         let mut vec_texts = vec![];
         for outer_item in outer {
@@ -136,7 +149,7 @@ impl NGramFrequencySurprisalPy {
             }
             vec_texts.push(vec_text);
         }
-        self.model.fit(&vec_texts);
+        self.model.fit(&vec_texts)?;
         Ok(())
     }
 

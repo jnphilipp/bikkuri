@@ -29,20 +29,26 @@ use std::num::ParseIntError;
 #[derive(Debug)]
 pub enum Error {
     Io(io::Error),
+    Message(String),
     MissingKey(String),
     ParseInt(ParseIntError),
     Regex(regex::Error),
     UnrecognisedFormat,
+    WorkerPanicked,
+    WorkerSend,
 }
 
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             Error::Io(e) => e.fmt(f),
+            Error::Message(msg) => write!(f, "{}", msg),
             Error::MissingKey(key) => write!(f, "Missing value for {key}."),
             Error::ParseInt(e) => e.fmt(f),
             Error::Regex(e) => e.fmt(f),
             Error::UnrecognisedFormat => write!(f, "Unrecognised format."),
+            Error::WorkerPanicked => write!(f, "A worker panicked."),
+            Error::WorkerSend => write!(f, "One or more workers failed to send their results."),
         }
     }
 }
@@ -51,10 +57,13 @@ impl error::Error for Error {
     fn source(&self) -> Option<&(dyn error::Error + 'static)> {
         match *self {
             Error::Io(ref e) => Some(e),
+            Error::Message(_) => None,
             Error::MissingKey(_) => None,
             Error::ParseInt(ref e) => Some(e),
             Error::Regex(ref e) => Some(e),
             Error::UnrecognisedFormat => None,
+            Error::WorkerPanicked => None,
+            Error::WorkerSend => None,
         }
     }
 }
@@ -68,6 +77,12 @@ impl From<regex::Error> for Error {
 impl From<ParseIntError> for Error {
     fn from(err: ParseIntError) -> Error {
         Error::ParseInt(err)
+    }
+}
+
+impl From<String> for Error {
+    fn from(err: String) -> Error {
+        Error::Message(err)
     }
 }
 
