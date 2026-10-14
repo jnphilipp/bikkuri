@@ -27,6 +27,7 @@ use bikkuri::ngram::NGramFrequencySurprisal;
 use std::error;
 use std::fs::File;
 use std::io::prelude::*;
+use std::io::{self, BufRead, BufReader};
 use tempdir::TempDir;
 
 fn get_texts() -> Vec<Vec<&'static str>> {
@@ -448,6 +449,25 @@ fn get_texts() -> Vec<Vec<&'static str>> {
     ]
 }
 
+fn read_sentences() -> io::Result<Vec<Vec<String>>> {
+    let file = File::open("../resources/eng_news_2025_100K-sentences-tokenized.txt")?;
+    let reader = BufReader::new(file);
+
+    let mut texts = Vec::new();
+
+    for line in reader.lines() {
+        let line = line?;
+        let text: Vec<String> = line
+            .split(",")
+            .map(|field| field.trim().to_string())
+            .collect();
+
+        texts.push(text);
+    }
+
+    Ok(texts)
+}
+
 #[test]
 fn test_unigram_frequency_surprisal() -> Result<(), Box<dyn error::Error>> {
     let mut model = NGramFrequencySurprisal::new(1);
@@ -524,6 +544,15 @@ fn test_unigram_frequency_surprisal() -> Result<(), Box<dyn error::Error>> {
 
     let model2 = NGramFrequencySurprisal::load(&path)?;
     assert_eq!(model2, model);
+
+    let mut model3 = NGramFrequencySurprisal::new(1);
+    let texts = read_sentences()?;
+    let start = std::time::Instant::now();
+    model3.fit(&texts)?;
+    println!(
+        "  unigram fit time for eng_news_2025_100K: {:?}",
+        start.elapsed()
+    );
 
     Ok(())
 }
@@ -606,6 +635,15 @@ fn test_bigram_surprisal() -> Result<(), Box<dyn error::Error>> {
     let model2 = NGramFrequencySurprisal::load(&path)?;
     assert_eq!(model2, model);
 
+    let mut model3 = NGramFrequencySurprisal::new(2);
+    let texts = read_sentences()?;
+    let start = std::time::Instant::now();
+    model3.fit(&texts)?;
+    println!(
+        "  bigram fit time for eng_news_2025_100K: {:?}",
+        start.elapsed()
+    );
+
     Ok(())
 }
 
@@ -686,6 +724,15 @@ fn test_trigram_frequency_surprisal() -> Result<(), Box<dyn error::Error>> {
 
     let model2 = NGramFrequencySurprisal::load(&path)?;
     assert_eq!(model2, model);
+
+    let mut model3 = NGramFrequencySurprisal::new(3);
+    let texts = read_sentences()?;
+    let start = std::time::Instant::now();
+    model3.fit(&texts)?;
+    println!(
+        "  trigram fit time for eng_news_2025_100K: {:?}",
+        start.elapsed()
+    );
 
     Ok(())
 }

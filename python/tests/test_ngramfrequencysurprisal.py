@@ -26,6 +26,7 @@ import unittest
 from bikkuri.ngram import NGramFrequencySurprisal
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from time import time
 
 
 class NGramFrquencySurprisalTests(unittest.TestCase):
@@ -464,6 +465,12 @@ class NGramFrquencySurprisalTests(unittest.TestCase):
                 "suspendisse",
             ],
         ]
+        with open(
+            "./resources/eng_news_2025_100K-sentences-tokenized.txt",
+            "r",
+            encoding="utf8",
+        ) as f:
+            self.eng_news_2025_100K = [line.strip().split(",") for line in f]
 
     def test_unigram_frequency_surprisal(self) -> None:
         """Test unigram surprisal."""
@@ -580,6 +587,11 @@ class NGramFrquencySurprisalTests(unittest.TestCase):
 
             model2 = NGramFrequencySurprisal.load(path)
             self.assertEqual(model, model2)
+
+            model3 = NGramFrequencySurprisal(1)
+            start = time()
+            model3.fit(self.eng_news_2025_100K)
+            print(f"unigram fit time for eng_news_2025_100K: {time() - start}")
 
     def test_bigram_frquency_surprisal(self) -> None:
         """Test bigram frequency surprisal."""
@@ -796,6 +808,11 @@ class NGramFrquencySurprisalTests(unittest.TestCase):
 
             model2 = NGramFrequencySurprisal.load(path)
             self.assertEqual(model, model2)
+
+            model3 = NGramFrequencySurprisal(2)
+            start = time()
+            model3.fit(self.eng_news_2025_100K)
+            print(f"bigram fit time for eng_news_2025_100K: {time() - start}")
 
     def test_trigram_frquency_surprisal(self) -> None:
         """Test trigram frequency surprisal."""
@@ -1065,6 +1082,11 @@ class NGramFrquencySurprisalTests(unittest.TestCase):
 
             model2 = NGramFrequencySurprisal.load(path)
             self.assertEqual(model, model2)
+
+            model3 = NGramFrequencySurprisal(3)
+            start = time()
+            model3.fit(self.eng_news_2025_100K)
+            print(f"trigram fit time for eng_news_2025_100K: {time() - start}")
 
     def test_ngramfrequencysurprisal_from_into_str(self) -> None:
         """Test from_str and __str__."""
