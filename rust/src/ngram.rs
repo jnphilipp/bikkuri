@@ -103,24 +103,26 @@ impl NGramFrequencySurprisal {
                 mpsc::channel::<(HashMap<String, i64>, HashMap<String, HashMap<String, i64>>)>();
 
             let handles: Vec<_> = texts
-                .iter()
-                .map(|text| {
+                .chunks(1000)
+                .map(|chunk| {
                     let sender = sender.clone();
                     scope.spawn(move || -> Result<(), SendError<(HashMap<String, i64>, HashMap<String, HashMap<String, i64>>)>> {
                         let mut counts: HashMap<String, i64> = HashMap::new();
                         let mut suffix_counts: HashMap<String, HashMap<String, i64>> = HashMap::new();
-                        for (i, word) in (0_i64..).zip(*text) {
-                            *counts
-                                .entry(word.as_ref().to_string())
-                                .or_insert(0) += 1;
-
-                            if n > 1 {
-                                let prefix: String = Self::get_prefix(*text, i, n).unwrap();
-                                *suffix_counts
+                        for text in chunk {
+                            for (i, word) in (0_i64..).zip(*text) {
+                                *counts
                                     .entry(word.as_ref().to_string())
-                                    .or_default()
-                                    .entry(prefix)
                                     .or_insert(0) += 1;
+
+                                if n > 1 {
+                                    let prefix: String = Self::get_prefix(*text, i, n).unwrap();
+                                    *suffix_counts
+                                        .entry(word.as_ref().to_string())
+                                        .or_default()
+                                        .entry(prefix)
+                                        .or_insert(0) += 1;
+                                }
                             }
                         }
                         sender.send((counts, suffix_counts))?;
