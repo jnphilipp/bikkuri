@@ -95,15 +95,18 @@ impl NGramFrequencySurprisal {
         for<'a> &'a U: IntoIterator<Item = &'a S>,
     {
         let n = self.n;
-
         let texts: Vec<&U> = texts.into_iter().collect();
-
+        let num_workers = thread::available_parallelism()
+            .map(|n| n.get())
+            .unwrap_or(2)
+            - 1;
+        let chunk_size = (texts.len() / num_workers).max(1000);
         thread::scope(|scope| -> Result<(), Error> {
             let (sender, receiver) =
                 mpsc::channel::<(HashMap<String, i64>, HashMap<String, HashMap<String, i64>>)>();
 
             let handles: Vec<_> = texts
-                .chunks(1000)
+                .chunks(chunk_size)
                 .map(|chunk| {
                     let sender = sender.clone();
                     scope.spawn(move || -> Result<(), SendError<(HashMap<String, i64>, HashMap<String, HashMap<String, i64>>)>> {
