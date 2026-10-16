@@ -8,7 +8,7 @@ SOURCE_FILES?=$(shell (test -e rust/src || test -e pyo3/src) && find rust/src py
 COMPILER?=cargo
 RUSTDOC?=rustdoc
 BUILD_FLAGS?=--release
-TEST_FLAGS?=--no-default-features -- --nocapture
+TEST_FLAGS?=--no-default-features -- --nocapture --test-threads=1
 
 BASH_COMPLETION_DIR?=/usr/share/bash-completion.d
 BIN_DIR?=/usr/bin
