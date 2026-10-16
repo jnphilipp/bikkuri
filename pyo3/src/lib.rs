@@ -105,7 +105,7 @@ struct NGramFrequencySurprisalPy {
 #[pymethods]
 impl NGramFrequencySurprisalPy {
     #[new]
-    fn __new__(n: i64) -> Self {
+    fn __new__(n: usize) -> Self {
         NGramFrequencySurprisalPy {
             model: NGramFrequencySurprisal::new(n),
         }

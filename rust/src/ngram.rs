@@ -36,13 +36,13 @@ use std::thread;
 /// Calculates the surprisal of words, using Shannon Information, based on n-gram frequency.
 #[derive(Clone, Debug)]
 pub struct NGramFrequencySurprisal {
-    pub n: i64,
+    pub n: usize,
     counts: HashMap<String, i64>,
     suffix_counts: HashMap<String, HashMap<String, i64>>,
 }
 
 impl NGramFrequencySurprisal {
-    fn get_prefix<T, S: AsRef<str>>(text: &T, suffix: i64, n: i64) -> Option<String>
+    fn get_prefix<T, S: AsRef<str>>(text: &T, suffix: i64, n: usize) -> Option<String>
     where
         for<'a> &'a T: IntoIterator<Item = &'a S>,
     {
@@ -66,7 +66,7 @@ impl NGramFrequencySurprisal {
         Some(parts.into_iter().collect::<Vec<_>>().join("_"))
     }
 
-    pub fn new(n: i64) -> NGramFrequencySurprisal {
+    pub fn new(n: usize) -> NGramFrequencySurprisal {
         NGramFrequencySurprisal {
             n,
             counts: HashMap::new(),
@@ -277,7 +277,7 @@ impl FromStr for NGramFrequencySurprisal {
 
         match re.captures(s) {
             Some(caps) => {
-                let n: i64 = caps["n"].parse()?;
+                let n: usize = caps["n"].parse()?;
                 let mut counts: HashMap<String, i64> = HashMap::new();
                 let mut suffix_counts: HashMap<String, HashMap<String, i64>> = HashMap::new();
 
