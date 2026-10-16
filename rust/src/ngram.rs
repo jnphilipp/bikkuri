@@ -28,6 +28,7 @@ use std::fs::File;
 use std::io;
 use std::io::Write;
 use std::io::prelude::*;
+use std::iter::repeat_n;
 use std::path::Path;
 use std::str::FromStr;
 use std::sync::mpsc::{self, SendError};
@@ -100,7 +101,7 @@ impl NGramFrequencySurprisal {
             .map(|n| n.get())
             .unwrap_or(2)
             - 1;
-        let chunk_size = (texts.len() / num_workers).max(1000);
+        let chunk_size = (texts.len() / num_workers).max(100);
         thread::scope(|scope| -> Result<(), Error> {
             let (sender, receiver) =
                 mpsc::channel::<(HashMap<String, i64>, HashMap<String, HashMap<String, i64>>)>();
@@ -113,18 +114,21 @@ impl NGramFrequencySurprisal {
                         let mut counts: HashMap<String, i64> = HashMap::new();
                         let mut suffix_counts: HashMap<String, HashMap<String, i64>> = HashMap::new();
                         for text in chunk {
-                            for (i, word) in (0_i64..).zip(*text) {
+                            let mut parts: VecDeque<String> = repeat_n("_".to_string(), n - 1).collect();
+                            for word in *text {
                                 *counts
                                     .entry(word.as_ref().to_string())
                                     .or_insert(0) += 1;
 
                                 if n > 1 {
-                                    let prefix: String = Self::get_prefix(*text, i, n).unwrap();
+                                    let prefix: String = parts.iter().map(String::as_str).collect::<Vec<_>>().join("_");
                                     *suffix_counts
                                         .entry(word.as_ref().to_string())
                                         .or_default()
                                         .entry(prefix)
                                         .or_insert(0) += 1;
+                                    parts.pop_front();
+                                    parts.push_back(word.as_ref().to_string());
                                 }
                             }
                         }
