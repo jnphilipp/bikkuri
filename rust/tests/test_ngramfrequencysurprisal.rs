@@ -471,22 +471,23 @@ fn read_sentences() -> io::Result<Vec<Vec<String>>> {
 #[test]
 fn test_unigram_frequency_surprisal() -> Result<(), Box<dyn error::Error>> {
     let mut model = NGramFrequencySurprisal::new(1);
-    assert_eq!(
-        None,
-        model.surprisal(&[[
-            "lorem",
-            "ipsum",
-            "dolor",
-            "sit",
-            "amet",
-            "consectetur",
-            "adipiscing",
-        ]])
+    assert!(
+        model
+            .surprisal(&[[
+                "lorem",
+                "ipsum",
+                "dolor",
+                "sit",
+                "amet",
+                "consectetur",
+                "adipiscing",
+            ]])
+            .is_err()
     );
     let texts = get_texts();
     model.fit(&texts)?;
     assert_eq!(
-        Some(vec![
+        vec![
             vec![
                 ("lorem".to_string(), 7.05528243550119),
                 ("ipsum".to_string(), 6.640244936222346),
@@ -504,7 +505,7 @@ fn test_unigram_frequency_surprisal() -> Result<(), Box<dyn error::Error>> {
                 ("ipsum".to_string(), 6.640244936222346),
                 ("nec".to_string(), 7.640244936222346),
             ],
-        ]),
+        ],
         model.surprisal(&vec![
             vec![
                 "lorem",
@@ -516,18 +517,18 @@ fn test_unigram_frequency_surprisal() -> Result<(), Box<dyn error::Error>> {
                 "adipiscing",
             ],
             vec!["feugiat", "massa", "maximus", "ultrices", "ipsum", "nec",],
-        ])
+        ])?
     );
     assert_eq!(
-        Some(vec![vec![
+        vec![vec![
             ("lorem".to_string(), 7.05528243550119),
             ("ipsum".to_string(), 6.640244936222346),
             ("dolor".to_string(), 6.640244936222346),
             ("sit".to_string(), 6.640244936222346),
             ("foo".to_string(), 8.643856189774725),
             ("bar".to_string(), 8.643856189774725),
-        ]]),
-        model.surprisal(&[["lorem", "ipsum", "dolor", "sit", "foo", "bar"]])
+        ]],
+        model.surprisal(&[["lorem", "ipsum", "dolor", "sit", "foo", "bar"]])?
     );
 
     let dir = TempDir::new("ngram_test")?;
@@ -553,6 +554,12 @@ fn test_unigram_frequency_surprisal() -> Result<(), Box<dyn error::Error>> {
         "  unigram fit time for eng_news_2025_100K: {:?}",
         start.elapsed()
     );
+    let start = std::time::Instant::now();
+    model3.surprisal(&texts)?;
+    println!(
+        "  unigram surprisal time for eng_news_2025_100K: {:?}",
+        start.elapsed()
+    );
 
     Ok(())
 }
@@ -560,22 +567,23 @@ fn test_unigram_frequency_surprisal() -> Result<(), Box<dyn error::Error>> {
 #[test]
 fn test_bigram_surprisal() -> Result<(), Box<dyn error::Error>> {
     let mut model = NGramFrequencySurprisal::new(2);
-    assert_eq!(
-        None,
-        model.surprisal(&[[
-            "lorem",
-            "ipsum",
-            "dolor",
-            "sit",
-            "amet",
-            "consectetur",
-            "adipiscing",
-        ]])
+    assert!(
+        model
+            .surprisal(&[[
+                "lorem",
+                "ipsum",
+                "dolor",
+                "sit",
+                "amet",
+                "consectetur",
+                "adipiscing",
+            ]])
+            .is_err()
     );
     let texts = get_texts();
     model.fit(&texts)?;
     assert_eq!(
-        Some(vec![
+        vec![
             vec![
                 ("lorem".to_string(), 2.9068905956085187),
                 ("ipsum".to_string(), 0.5849625007211563),
@@ -593,7 +601,7 @@ fn test_bigram_surprisal() -> Result<(), Box<dyn error::Error>> {
                 ("ipsum".to_string(), 0.0),
                 ("nec".to_string(), 2.0),
             ],
-        ]),
+        ],
         model.surprisal(&vec![
             vec![
                 "lorem",
@@ -605,10 +613,10 @@ fn test_bigram_surprisal() -> Result<(), Box<dyn error::Error>> {
                 "adipiscing",
             ],
             vec!["feugiat", "massa", "maximus", "ultrices", "ipsum", "nec",],
-        ])
+        ])?
     );
     assert_eq!(
-        Some(vec![vec![
+        vec![vec![
             ("lorem".to_string(), 2.9068905956085187),
             ("ipsum".to_string(), 0.5849625007211563),
             ("dolor".to_string(), 1.0),
@@ -616,8 +624,8 @@ fn test_bigram_surprisal() -> Result<(), Box<dyn error::Error>> {
             ("amet".to_string(), 1.0),
             ("foo".to_string(), 2.584962500721156),
             ("bar".to_string(), 8.643856189774725),
-        ]]),
-        model.surprisal(&[["lorem", "ipsum", "dolor", "sit", "amet", "foo", "bar"]])
+        ]],
+        model.surprisal(&[["lorem", "ipsum", "dolor", "sit", "amet", "foo", "bar"]])?
     );
 
     let dir = TempDir::new("ngram_test")?;
@@ -643,6 +651,13 @@ fn test_bigram_surprisal() -> Result<(), Box<dyn error::Error>> {
         "  bigram fit time for eng_news_2025_100K: {:?}",
         start.elapsed()
     );
+    let first_200: Vec<_> = texts.iter().take(200).cloned().collect();
+    let start = std::time::Instant::now();
+    model3.surprisal(&first_200)?;
+    println!(
+        "  bigram surprisal time for eng_news_2025_100K: {:?}",
+        start.elapsed()
+    );
 
     Ok(())
 }
@@ -650,22 +665,23 @@ fn test_bigram_surprisal() -> Result<(), Box<dyn error::Error>> {
 #[test]
 fn test_trigram_frequency_surprisal() -> Result<(), Box<dyn error::Error>> {
     let mut model = NGramFrequencySurprisal::new(3);
-    assert_eq!(
-        None,
-        model.surprisal(&[[
-            "lorem",
-            "ipsum",
-            "dolor",
-            "sit",
-            "amet",
-            "consectetur",
-            "adipiscing",
-        ]])
+    assert!(
+        model
+            .surprisal(&[[
+                "lorem",
+                "ipsum",
+                "dolor",
+                "sit",
+                "amet",
+                "consectetur",
+                "adipiscing",
+            ]])
+            .is_err()
     );
     let texts = get_texts();
     model.fit(&texts)?;
     assert_eq!(
-        Some(vec![
+        vec![
             vec![
                 ("lorem".to_string(), 2.9068905956085187),
                 ("ipsum".to_string(), 0.0),
@@ -683,7 +699,7 @@ fn test_trigram_frequency_surprisal() -> Result<(), Box<dyn error::Error>> {
                 ("ipsum".to_string(), 0.0),
                 ("nec".to_string(), 0.0),
             ],
-        ]),
+        ],
         model.surprisal(&vec![
             vec![
                 "lorem",
@@ -695,10 +711,10 @@ fn test_trigram_frequency_surprisal() -> Result<(), Box<dyn error::Error>> {
                 "adipiscing",
             ],
             vec!["feugiat", "massa", "maximus", "ultrices", "ipsum", "nec",],
-        ])
+        ])?
     );
     assert_eq!(
-        Some(vec![vec![
+        vec![vec![
             ("lorem".to_string(), 2.9068905956085187),
             ("ipsum".to_string(), 0.0),
             ("dolor".to_string(), 0.0),
@@ -706,8 +722,8 @@ fn test_trigram_frequency_surprisal() -> Result<(), Box<dyn error::Error>> {
             ("amet".to_string(), 0.0),
             ("foo".to_string(), 1.5849625007211563),
             ("bar".to_string(), 8.643856189774725),
-        ]]),
-        model.surprisal(&[["lorem", "ipsum", "dolor", "sit", "amet", "foo", "bar"]])
+        ]],
+        model.surprisal(&[["lorem", "ipsum", "dolor", "sit", "amet", "foo", "bar"]])?
     );
 
     let dir = TempDir::new("ngram_test")?;
@@ -731,6 +747,13 @@ fn test_trigram_frequency_surprisal() -> Result<(), Box<dyn error::Error>> {
     model3.fit(&texts)?;
     println!(
         "  trigram fit time for eng_news_2025_100K: {:?}",
+        start.elapsed()
+    );
+    let first_200: Vec<_> = texts.iter().take(200).cloned().collect();
+    let start = std::time::Instant::now();
+    model3.surprisal(&first_200)?;
+    println!(
+        "  trigram surprisal time for eng_news_2025_100K: {:?}",
         start.elapsed()
     );
 

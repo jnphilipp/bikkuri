@@ -43,30 +43,6 @@ pub struct NGramFrequencySurprisal {
 }
 
 impl NGramFrequencySurprisal {
-    fn get_prefix<T, S: AsRef<str>>(text: &T, suffix: i64, n: usize) -> Option<String>
-    where
-        for<'a> &'a T: IntoIterator<Item = &'a S>,
-    {
-        if n <= 1 {
-            return None;
-        }
-
-        let mut parts: VecDeque<String> = VecDeque::new();
-        for _ in 1..n {
-            parts.push_back("_".to_string());
-        }
-        for (i, word) in (0_i64..).zip(text) {
-            if i == suffix {
-                break;
-            } else {
-                parts.pop_front();
-                parts.push_back(word.as_ref().to_string());
-            }
-        }
-
-        Some(parts.into_iter().collect::<Vec<_>>().join("_"))
-    }
-
     pub fn new(n: usize) -> NGramFrequencySurprisal {
         NGramFrequencySurprisal {
             n,
@@ -101,7 +77,7 @@ impl NGramFrequencySurprisal {
             .map(|n| n.get())
             .unwrap_or(2)
             - 1;
-        let chunk_size = (texts.len() / num_workers).max(100);
+        let chunk_size = (texts.len() / num_workers).max(10);
         thread::scope(|scope| -> Result<(), Error> {
             let (sender, receiver) =
                 mpsc::channel::<(HashMap<String, i64>, HashMap<String, HashMap<String, i64>>)>();
@@ -174,57 +150,125 @@ impl NGramFrequencySurprisal {
     }
 
     /// Calculate the surprisal for each word in each given text.
-    pub fn surprisal<T, U, S: AsRef<str>>(&self, texts: &T) -> Option<Vec<Vec<(String, f64)>>>
+    pub fn surprisal<T, U, S: AsRef<str>>(
+        &self,
+        texts: &T,
+    ) -> Result<Vec<Vec<(String, f64)>>, Error>
     where
+        U: Sync,
+        S: AsRef<str> + Sync,
         for<'a> &'a T: IntoIterator<Item = &'a U>,
         for<'a> &'a U: IntoIterator<Item = &'a S>,
     {
         if self.counts.is_empty() {
-            return None;
+            return Err(Error::ModelUntrained);
         }
 
+        let n = self.n;
         let prefix_count = |prefix: &String| -> f64 {
             self.suffix_counts
                 .values()
                 .map(|v| v.get(prefix).copied().unwrap_or(0) as f64)
                 .sum()
         };
-
-        let mut surprisal_texts = vec![];
+        let texts: Vec<&U> = texts.into_iter().collect();
         let total: f64 = self.counts.values().map(|&v| v as f64).sum();
-        for text in texts {
-            let mut surprisal_text = vec![];
-            for (i, word) in (0_i64..).zip(text) {
-                let p: f64;
-                let w = word.as_ref().to_string();
-                if self.n == 1 {
-                    if self.counts.contains_key(&w) {
-                        p = *self.counts.get(&w).unwrap() as f64 / total;
-                    } else {
-                        p = 1.0 / (total + 1.0);
+
+        let num_workers = thread::available_parallelism()
+            .map(|n| n.get())
+            .unwrap_or(2)
+            - 1;
+        let chunk_size = (texts.len() / num_workers).max(10);
+        thread::scope(|scope| -> Result<Vec<Vec<(String, f64)>>, Error> {
+            let (sender, receiver) = mpsc::channel::<(usize, Vec<Vec<(String, f64)>>)>();
+
+            let handles: Vec<_> = texts
+                .chunks(chunk_size)
+                .enumerate()
+                .map(|(chunk_index, chunk)| {
+                    let sender = sender.clone();
+                    scope.spawn(
+                        move || -> Result<(), SendError<(usize, Vec<Vec<(String, f64)>>)>> {
+                            let mut surprisal_texts: Vec<Vec<(String, f64)>> = vec![];
+                            for text in chunk {
+                                let mut surprisal_text = vec![];
+                                let mut parts: VecDeque<String> =
+                                    repeat_n("_".to_string(), n - 1).collect();
+                                for word in *text {
+                                    let p: f64;
+                                    let w = word.as_ref().to_string();
+                                    if self.n == 1 {
+                                        if self.counts.contains_key(&w) {
+                                            p = *self.counts.get(&w).unwrap() as f64 / total;
+                                        } else {
+                                            p = 1.0 / (total + 1.0);
+                                        }
+                                    } else {
+                                        let prefix: String = parts
+                                            .iter()
+                                            .map(String::as_str)
+                                            .collect::<Vec<_>>()
+                                            .join("_");
+                                        if self.suffix_counts.contains_key(&w)
+                                            && self
+                                                .suffix_counts
+                                                .get(&w)
+                                                .unwrap()
+                                                .contains_key(&prefix)
+                                        {
+                                            p = *self
+                                                .suffix_counts
+                                                .get(&w)
+                                                .unwrap()
+                                                .get(&prefix)
+                                                .unwrap()
+                                                as f64
+                                                / prefix_count(&prefix);
+                                        } else if self.suffix_counts.contains_key(&w) {
+                                            p = *self.counts.get(&w).unwrap() as f64 / total;
+                                        } else if prefix_count(&prefix) == 0.0 {
+                                            p = 1.0 / (total + 1.0)
+                                        } else {
+                                            p = 1.0 / (prefix_count(&prefix) + 1.0);
+                                        }
+                                        parts.pop_front();
+                                        parts.push_back(w.clone());
+                                    }
+                                    surprisal_text.push((w, -p.log2()));
+                                }
+                                surprisal_texts.push(surprisal_text);
+                            }
+                            sender.send((chunk_index, surprisal_texts))?;
+                            Ok(())
+                        },
+                    )
+                })
+                .collect();
+
+            drop(sender);
+
+            let mut surprisal_texts: Vec<Vec<(String, f64)>> = vec![vec![]; texts.len()];
+            for (chunk_index, stexts) in receiver {
+                for (j, stext) in stexts.into_iter().enumerate() {
+                    let i = chunk_index * chunk_size + j;
+                    surprisal_texts[i] = stext;
+                }
+            }
+
+            for handle in handles {
+                match handle.join() {
+                    Ok(Ok(())) => {}
+                    Ok(Err(_send_error)) => {
+                        return Err(Error::WorkerSend);
                     }
-                } else {
-                    let prefix: String =
-                        NGramFrequencySurprisal::get_prefix(text, i, self.n).unwrap();
-                    if self.suffix_counts.contains_key(&w)
-                        && self.suffix_counts.get(&w).unwrap().contains_key(&prefix)
-                    {
-                        p = *self.suffix_counts.get(&w).unwrap().get(&prefix).unwrap() as f64
-                            / prefix_count(&prefix);
-                    } else if self.suffix_counts.contains_key(&w) {
-                        p = *self.counts.get(&w).unwrap() as f64 / total;
-                    } else if prefix_count(&prefix) == 0.0 {
-                        p = 1.0 / (total + 1.0)
-                    } else {
-                        p = 1.0 / (prefix_count(&prefix) + 1.0);
+                    Err(_panic_payload) => {
+                        return Err(Error::WorkerPanicked);
                     }
                 }
-                surprisal_text.push((w, -p.log2()));
             }
-            surprisal_texts.push(surprisal_text);
-        }
 
-        Some(surprisal_texts)
+            Ok(surprisal_texts)
+        })
     }
 }
 

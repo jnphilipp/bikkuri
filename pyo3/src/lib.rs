@@ -74,6 +74,9 @@ impl std::convert::From<ErrorPy> for PyErr {
             ErrorPy(Error::Io(ref e)) => exceptions::PyOSError::new_err(e.to_string()),
             ErrorPy(Error::Message(ref e)) => exceptions::PyRuntimeError::new_err(e.to_string()),
             ErrorPy(Error::MissingKey(ref e)) => exceptions::PyKeyError::new_err(e.to_string()),
+            ErrorPy(Error::ModelUntrained) => exceptions::PyRuntimeError::new_err(
+                "The model is untrained and cannot be used yet.".to_string(),
+            ),
             ErrorPy(Error::ParseInt(ref e)) => exceptions::PyValueError::new_err(e.to_string()),
             ErrorPy(Error::Regex(ref e)) => exceptions::PySyntaxError::new_err(e.to_string()),
             ErrorPy(Error::UnrecognisedFormat) => {
@@ -161,7 +164,7 @@ impl NGramFrequencySurprisalPy {
 
     /// Calculate the surprisal for each word in each given text.
     #[pyo3(signature = (texts: "Iterable[Iterable[str]]") -> "list[list[tuple[str, float]]] | None")]
-    pub fn surprisal(&self, texts: &Bound<'_, PyAny>) -> PyResult<Option<Vec<Vec<(String, f64)>>>> {
+    pub fn surprisal(&self, texts: &Bound<'_, PyAny>) -> Result<Vec<Vec<(String, f64)>>, ErrorPy> {
         let outer = texts.try_iter()?;
         let mut vec_texts = vec![];
         for outer_item in outer {
@@ -174,7 +177,7 @@ impl NGramFrequencySurprisalPy {
             }
             vec_texts.push(vec_text);
         }
-        Ok(self.model.surprisal(&vec_texts))
+        Ok(self.model.surprisal(&vec_texts)?)
     }
 }
 
