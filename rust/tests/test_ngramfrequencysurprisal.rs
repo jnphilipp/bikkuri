@@ -470,7 +470,7 @@ fn read_sentences() -> io::Result<Vec<Vec<String>>> {
 
 #[test]
 fn test_unigram_frequency_surprisal() -> Result<(), Box<dyn error::Error>> {
-    let mut model = NGramFrequencySurprisal::new(1);
+    let mut model = NGramFrequencySurprisal::new(1)?;
     assert!(
         model
             .surprisal(&[[
@@ -546,7 +546,7 @@ fn test_unigram_frequency_surprisal() -> Result<(), Box<dyn error::Error>> {
     let model2 = NGramFrequencySurprisal::load(&path)?;
     assert_eq!(model2, model);
 
-    let mut model3 = NGramFrequencySurprisal::new(1);
+    let mut model3 = NGramFrequencySurprisal::new(1)?;
     let texts = read_sentences()?;
     let start = std::time::Instant::now();
     model3.fit(&texts)?;
@@ -566,7 +566,7 @@ fn test_unigram_frequency_surprisal() -> Result<(), Box<dyn error::Error>> {
 
 #[test]
 fn test_bigram_surprisal() -> Result<(), Box<dyn error::Error>> {
-    let mut model = NGramFrequencySurprisal::new(2);
+    let mut model = NGramFrequencySurprisal::new(2)?;
     assert!(
         model
             .surprisal(&[[
@@ -643,7 +643,7 @@ fn test_bigram_surprisal() -> Result<(), Box<dyn error::Error>> {
     let model2 = NGramFrequencySurprisal::load(&path)?;
     assert_eq!(model2, model);
 
-    let mut model3 = NGramFrequencySurprisal::new(2);
+    let mut model3 = NGramFrequencySurprisal::new(2)?;
     let texts = read_sentences()?;
     let start = std::time::Instant::now();
     model3.fit(&texts)?;
@@ -664,7 +664,7 @@ fn test_bigram_surprisal() -> Result<(), Box<dyn error::Error>> {
 
 #[test]
 fn test_trigram_frequency_surprisal() -> Result<(), Box<dyn error::Error>> {
-    let mut model = NGramFrequencySurprisal::new(3);
+    let mut model = NGramFrequencySurprisal::new(3)?;
     assert!(
         model
             .surprisal(&[[
@@ -741,7 +741,7 @@ fn test_trigram_frequency_surprisal() -> Result<(), Box<dyn error::Error>> {
     let model2 = NGramFrequencySurprisal::load(&path)?;
     assert_eq!(model2, model);
 
-    let mut model3 = NGramFrequencySurprisal::new(3);
+    let mut model3 = NGramFrequencySurprisal::new(3)?;
     let texts = read_sentences()?;
     let start = std::time::Instant::now();
     model3.fit(&texts)?;
@@ -793,7 +793,7 @@ fn test_save_and_load() -> Result<(), Box<dyn error::Error>> {
     f.write_all(b"{\"n\":2,\"counts\":{},\"suffix_counts\":{}}")?;
     let r = NGramFrequencySurprisal::load(&path);
     assert!(r.is_ok());
-    assert_eq!(NGramFrequencySurprisal::new(2), r.unwrap());
+    assert_eq!(NGramFrequencySurprisal::new(2)?, r.unwrap());
 
     let mut f = File::create(&path)?;
     f.write_all(
@@ -815,18 +815,18 @@ fn test_save_and_load() -> Result<(), Box<dyn error::Error>> {
 #[test]
 fn test_from_into_str() -> Result<(), Box<dyn error::Error>> {
     assert_eq!(
-        NGramFrequencySurprisal::new(1).to_string(),
+        NGramFrequencySurprisal::new(1)?.to_string(),
         "{\"n\":1,\"counts\":{},\"suffix_counts\":{}}".to_string(),
     );
 
-    let mut model = NGramFrequencySurprisal::new(1);
+    let mut model = NGramFrequencySurprisal::new(1)?;
     model.fit(&vec![vec!["foo", "bar"], vec!["foo"]])?;
     assert_eq!(
         model.to_string(),
         "{\"n\":1,\"counts\":{\"bar\":1,\"foo\":2},\"suffix_counts\":{}}".to_string(),
     );
 
-    let mut model = NGramFrequencySurprisal::new(2);
+    let mut model = NGramFrequencySurprisal::new(2)?;
     model.fit(&vec![vec!["foo", "bar"], vec!["foo"], vec!["foo", "foo"]])?;
     assert_eq!(
         "{\"n\":2,\"counts\":{\"bar\":1,\"foo\":4},\"suffix_counts\":{\"bar\":{\"foo\":1},\"foo\":{\"_\":3,\"foo\":1}}}".to_string(),
@@ -864,7 +864,7 @@ fn test_from_into_str() -> Result<(), Box<dyn error::Error>> {
 
     let p = "{\"n\":2,\"counts\":{},\"suffix_counts\":{}}".parse::<NGramFrequencySurprisal>();
     assert!(p.is_ok());
-    assert_eq!(p.unwrap(), NGramFrequencySurprisal::new(2));
+    assert_eq!(p.unwrap(), NGramFrequencySurprisal::new(2)?);
 
     let p = "{\"n\":1,\"counts\":{\"foo\":1,\"bar\":2},\"suffix_counts\":{\"bar\":{\"foo\":2}}}"
         .parse::<NGramFrequencySurprisal>();

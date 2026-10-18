@@ -37,6 +37,7 @@ pub enum Error {
     UnrecognisedFormat,
     WorkerPanicked,
     WorkerSend,
+    ZeroNGram,
 }
 
 impl fmt::Display for Error {
@@ -51,6 +52,7 @@ impl fmt::Display for Error {
             Error::UnrecognisedFormat => write!(f, "Unrecognised format."),
             Error::WorkerPanicked => write!(f, "A worker panicked."),
             Error::WorkerSend => write!(f, "One or more workers failed to send their results."),
+            Error::ZeroNGram => write!(f, "N-gram needs to be non zero."),
         }
     }
 }
@@ -67,6 +69,7 @@ impl error::Error for Error {
             Error::UnrecognisedFormat => None,
             Error::WorkerPanicked => None,
             Error::WorkerSend => None,
+            Error::ZeroNGram => None,
         }
     }
 }

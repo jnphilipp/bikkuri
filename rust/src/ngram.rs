@@ -37,18 +37,26 @@ use std::thread;
 /// Calculates the surprisal of words, using Shannon Information, based on n-gram frequency.
 #[derive(Clone, Debug)]
 pub struct NGramFrequencySurprisal {
-    pub n: usize,
+    n: usize,
     counts: HashMap<String, i64>,
     suffix_counts: HashMap<String, HashMap<String, i64>>,
 }
 
 impl NGramFrequencySurprisal {
-    pub fn new(n: usize) -> NGramFrequencySurprisal {
-        NGramFrequencySurprisal {
+    pub fn new(n: usize) -> Result<NGramFrequencySurprisal, Error> {
+        if n == 0 {
+            return Err(Error::ZeroNGram);
+        }
+        Ok(NGramFrequencySurprisal {
             n,
             counts: HashMap::new(),
             suffix_counts: HashMap::new(),
-        }
+        })
+    }
+
+    /// Get n.
+    pub fn get_n(self) -> usize {
+        self.n
     }
 
     /// Load from a JSON-file.
@@ -71,6 +79,10 @@ impl NGramFrequencySurprisal {
         for<'a> &'a T: IntoIterator<Item = &'a U>,
         for<'a> &'a U: IntoIterator<Item = &'a S>,
     {
+        if self.n == 0 {
+            return Err(Error::ZeroNGram);
+        }
+
         let n = self.n;
         let texts: Vec<&U> = texts.into_iter().collect();
         let num_workers = thread::available_parallelism()
@@ -160,6 +172,9 @@ impl NGramFrequencySurprisal {
         for<'a> &'a T: IntoIterator<Item = &'a U>,
         for<'a> &'a U: IntoIterator<Item = &'a S>,
     {
+        if self.n == 0 {
+            return Err(Error::ZeroNGram);
+        }
         if self.counts.is_empty() {
             return Err(Error::ModelUntrained);
         }
@@ -276,7 +291,6 @@ impl fmt::Display for NGramFrequencySurprisal {
     /// Display a n-gram frequency surprisal as a JSON str.
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{{\"n\":{},", self.n)?;
-
         write!(f, "\"counts\":{{")?;
         let mut keys: Vec<String> = self.counts.clone().into_keys().collect();
         keys.sort_unstable();
@@ -326,6 +340,9 @@ impl FromStr for NGramFrequencySurprisal {
         match re.captures(s) {
             Some(caps) => {
                 let n: usize = caps["n"].parse()?;
+                if n == 0 {
+                    return Err(Error::ZeroNGram);
+                }
                 let mut counts: HashMap<String, i64> = HashMap::new();
                 let mut suffix_counts: HashMap<String, HashMap<String, i64>> = HashMap::new();
 

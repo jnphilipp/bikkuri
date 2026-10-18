@@ -88,6 +88,9 @@ impl std::convert::From<ErrorPy> for PyErr {
             ErrorPy(Error::WorkerSend) => exceptions::PyRuntimeError::new_err(
                 "One or more workers failed to send their results.".to_string(),
             ),
+            ErrorPy(Error::ZeroNGram) => {
+                exceptions::PyRuntimeError::new_err("N-gram needs to be non zero.".to_string())
+            }
         }
     }
 }
@@ -108,10 +111,10 @@ struct NGramFrequencySurprisalPy {
 #[pymethods]
 impl NGramFrequencySurprisalPy {
     #[new]
-    fn __new__(n: usize) -> Self {
-        NGramFrequencySurprisalPy {
-            model: NGramFrequencySurprisal::new(n),
-        }
+    fn __new__(n: usize) -> Result<Self, ErrorPy> {
+        Ok(NGramFrequencySurprisalPy {
+            model: NGramFrequencySurprisal::new(n)?,
+        })
     }
 
     pub fn __str__(&self) -> String {
