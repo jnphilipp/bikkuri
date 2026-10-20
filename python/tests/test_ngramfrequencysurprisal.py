@@ -592,6 +592,9 @@ class NGramFrquencySurprisalTests(unittest.TestCase):
             start = time()
             model3.fit(self.eng_news_2025_100K)
             print(f"unigram fit time for eng_news_2025_100K: {time() - start}")
+            start = time()
+            model3.fit(self.eng_news_2025_100K)
+            print(f"unigram surprisal time for eng_news_2025_100K: {time() - start}")
 
     def test_bigram_frquency_surprisal(self) -> None:
         """Test bigram frequency surprisal."""
@@ -813,6 +816,9 @@ class NGramFrquencySurprisalTests(unittest.TestCase):
             start = time()
             model3.fit(self.eng_news_2025_100K)
             print(f"bigram fit time for eng_news_2025_100K: {time() - start}")
+            start = time()
+            model3.fit(self.eng_news_2025_100K[:250])
+            print(f"bigram surprisal time for eng_news_2025_100K: {time() - start}")
 
     def test_trigram_frquency_surprisal(self) -> None:
         """Test trigram frequency surprisal."""
@@ -1087,6 +1093,9 @@ class NGramFrquencySurprisalTests(unittest.TestCase):
             start = time()
             model3.fit(self.eng_news_2025_100K)
             print(f"trigram fit time for eng_news_2025_100K: {time() - start}")
+            start = time()
+            model3.fit(self.eng_news_2025_100K[:250])
+            print(f"trigram surprisal time for eng_news_2025_100K: {time() - start}")
 
     def test_ngramfrequencysurprisal_from_into_str(self) -> None:
         """Test from_str and __str__."""

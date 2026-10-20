@@ -651,9 +651,9 @@ fn test_bigram_surprisal() -> Result<(), Box<dyn error::Error>> {
         "  bigram fit time for eng_news_2025_100K: {:?}",
         start.elapsed()
     );
-    let first_200: Vec<_> = texts.iter().take(200).cloned().collect();
+    let first_250: Vec<_> = texts.iter().take(250).cloned().collect();
     let start = std::time::Instant::now();
-    model3.surprisal(&first_200)?;
+    model3.surprisal(&first_250)?;
     println!(
         "  bigram surprisal time for eng_news_2025_100K: {:?}",
         start.elapsed()
@@ -749,9 +749,9 @@ fn test_trigram_frequency_surprisal() -> Result<(), Box<dyn error::Error>> {
         "  trigram fit time for eng_news_2025_100K: {:?}",
         start.elapsed()
     );
-    let first_200: Vec<_> = texts.iter().take(200).cloned().collect();
+    let first_250: Vec<_> = texts.iter().take(250).cloned().collect();
     let start = std::time::Instant::now();
-    model3.surprisal(&first_200)?;
+    model3.surprisal(&first_250)?;
     println!(
         "  trigram surprisal time for eng_news_2025_100K: {:?}",
         start.elapsed()
