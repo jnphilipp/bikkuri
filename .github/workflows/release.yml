@@ -59,17 +59,6 @@ jobs:
           CIBW_BEFORE_ALL_LINUX: curl -sSf https://sh.rustup.rs | sh -s -- -y
           CIBW_BEFORE_ALL_WINDOWS: rustup target add i686-pc-windows-msvc
           CIBW_ENVIRONMENT_LINUX: "PATH=$HOME/.cargo/bin:$PATH"
-      - name: Upload to PyPI
-        uses: actions/setup-python@v7
-        with:
-          python-version: "3.15"
-        run: |
-          python -m pip install --upgrade pip packaging pkginfo
-          python -m pip install twine
-          python -m twine upload wheelhouse/*.whl --verbose
-        env:
-          TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.TWINE_PYPI_TOKEN }}
       - name: Upload wheels
         uses: actions/upload-artifact@v7
         with:
@@ -91,3 +80,25 @@ jobs:
         run: gh release upload "${GITHUB_REF_NAME}" dist/*.whl
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  upload_pypi:
+    needs: [build_wheels]
+    runs-on: ubuntu-latest
+      - name: Setup Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.15"
+      - name: Download artifacts
+        uses: actions/download-artifact@v8
+        with:
+          pattern: cibw-wheels-*
+          path: dist
+          merge-multiple: true
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip packaging pkginfo
+          python -m pip install twine
+      - name: Upload to Pypi
+          python -m twine upload dist/*.whl --verbose
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.TWINE_PYPI_TOKEN }}
