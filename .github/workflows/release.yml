@@ -99,7 +99,7 @@ jobs:
           python -m pip install --upgrade pip packaging pkginfo
           python -m pip install twine
       - name: Upload to Pypi
-          python -m twine upload dist/*.whl --verbose
+        run: python -m twine upload dist/*.whl --verbose
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.TWINE_PYPI_TOKEN }}
